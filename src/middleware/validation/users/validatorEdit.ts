@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { getRepository } from 'typeorm';
 
-import { User } from 'orm/entities/users/User';
+import { Admin } from 'orm/entities/models/admin';
 import { CustomError } from 'utils/response/custom-error/CustomError';
 import { ErrorValidation } from 'utils/response/custom-error/types';
 
 export const validatorEdit = async (req: Request, res: Response, next: NextFunction) => {
   let { username, name } = req.body;
   const errorsValidation: ErrorValidation[] = [];
-  const userRepository = getRepository(User);
+  const userRepository = getRepository(Admin);
 
   username = !username ? '' : username;
   name = !name ? '' : name;

@@ -1,13 +1,10 @@
 import bcrypt from 'bcryptjs';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-import { Role, Language } from './types';
-
-@Entity('users')
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+import { ModelEntity } from './model.entity';
+import { ROLE_ENUM, ADMIN_STATUS_ENUM } from '../../../share/enum';
+@Entity('admin')
+export class Admin extends ModelEntity {
   @Column({
     unique: true,
   })
@@ -28,28 +25,20 @@ export class User {
   name: string;
 
   @Column({
-    default: 'STANDARD' as Role,
+    default: 'ADMINISTATOR',
     length: 30,
   })
-  role: string;
+  role: ROLE_ENUM;
 
   @Column({
-    default: 'en-US' as Language,
-    length: 15,
+    nullable: true,
   })
-  language: string;
+  phone: string;
 
-  @Column()
-  @CreateDateColumn()
-  created_at: Date;
-
-  @Column()
-  @UpdateDateColumn()
-  updated_at: Date;
-
-  setLanguage(language: Language) {
-    this.language = language;
-  }
+  @Column({
+    nullable: true,
+  })
+  status: ADMIN_STATUS_ENUM;
 
   hashPassword() {
     this.password = bcrypt.hashSync(this.password, 8);

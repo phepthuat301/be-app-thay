@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { getRepository } from 'typeorm';
 
-import { Role } from 'orm/entities/users/types';
-import { User } from 'orm/entities/users/User';
+import { Role } from 'orm/entities/models/types';
+import { Admin } from 'orm/entities/models/admin';
 import { JwtPayload } from 'types/JwtPayload';
 import { createJwtToken } from 'utils/createJwtToken';
 import { CustomError } from 'utils/response/custom-error/CustomError';
@@ -10,7 +10,7 @@ import { CustomError } from 'utils/response/custom-error/CustomError';
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
 
-  const userRepository = getRepository(User);
+  const userRepository = getRepository(Admin);
   try {
     const user = await userRepository.findOne({ where: { email } });
 
@@ -29,7 +29,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       name: user.name,
       email: user.email,
       role: user.role as Role,
-      created_at: user.created_at,
+      created_at: user.createdAt,
     };
 
     try {

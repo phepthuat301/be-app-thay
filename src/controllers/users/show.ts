@@ -1,17 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import { getRepository } from 'typeorm';
 
-import { User } from 'orm/entities/users/User';
+import { Admin } from 'orm/entities/models/admin';
 import { CustomError } from 'utils/response/custom-error/CustomError';
 
 export const show = async (req: Request, res: Response, next: NextFunction) => {
   const id = req.params.id;
 
-  const userRepository = getRepository(User);
+  const userRepository = getRepository(Admin);
   try {
-    const user = await userRepository.findOne(id, {
-      select: ['id', 'username', 'name', 'email', 'role', 'language', 'created_at', 'updated_at'],
-    });
+    const user = await userRepository.findOne({ where: { id }, relations: ['role'] });
 
     if (!user) {
       const customError = new CustomError(404, 'General', `User with id:${id} not found.`, ['User not found.']);

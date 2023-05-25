@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
-import { Role } from '../orm/entities/users/types';
+import { Role } from '../orm/entities/models/types';
 import { CustomError } from '../utils/response/custom-error/CustomError';
 
 export const checkRole = (roles: Role[], isSelfAllowed = false) => {

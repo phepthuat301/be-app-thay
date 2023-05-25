@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { getRepository } from 'typeorm';
 
-import { User } from 'orm/entities/users/User';
+import { Admin } from 'orm/entities/models/admin';
 import { CustomError } from 'utils/response/custom-error/CustomError';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
 
-  const userRepository = getRepository(User);
+  const userRepository = getRepository(Admin);
   try {
     const user = await userRepository.findOne({ where: { email } });
 
@@ -19,7 +19,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     }
 
     try {
-      const newUser = new User();
+      const newUser = new Admin();
       newUser.email = email;
       newUser.password = password;
       newUser.hashPassword();
