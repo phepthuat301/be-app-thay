@@ -14,7 +14,6 @@ export enum ROLE_ENUM {
   STAFF = 'STAFF',
 }
 
-
 export enum ADMIN_STATUS_ENUM {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
