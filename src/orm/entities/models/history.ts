@@ -1,6 +1,6 @@
 import { Entity, Column } from 'typeorm';
 
-import { ModelEntity } from './model.entity';
+import { ModelEntity } from './model';
 
 @Entity('History')
 export class History extends ModelEntity {

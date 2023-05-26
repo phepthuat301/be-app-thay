@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-import { ModelEntity } from './model.entity';
+import { ModelEntity } from './model';
 import { ROLE_ENUM, ADMIN_STATUS_ENUM } from '../../../share/enum';
 @Entity('admin')
 export class Admin extends ModelEntity {

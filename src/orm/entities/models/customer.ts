@@ -1,7 +1,6 @@
-import bcrypt from 'bcryptjs';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-import { ModelEntity } from './model.entity';
+import { ModelEntity } from './model';
 import { GENDER } from 'share/enum';
 
 @Entity('Customer')

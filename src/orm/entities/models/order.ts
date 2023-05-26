@@ -1,6 +1,6 @@
 import { Entity, Column } from 'typeorm';
 
-import { ModelEntity } from './model.entity';
+import { ModelEntity } from './model';
 
 @Entity('Order')
 export class Order extends ModelEntity {
