@@ -1,10 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import { getRepository } from 'typeorm';
-
-import { Admin } from 'orm/entities/models/admin';
-import { Role } from 'orm/entities/models/types';
-import { JwtPayload } from 'types/JwtPayload';
-import { createJwtToken } from 'utils/createJwtToken';
 import { CustomError } from 'utils/response/custom-error/CustomError';
 import AdminService from 'services/admin.services';
 

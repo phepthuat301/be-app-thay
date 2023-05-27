@@ -7,36 +7,36 @@ import { CustomError } from 'utils/response/custom-error/CustomError';
 
 const register = async (name: string, email: string, password: string, phone: string) => {
   const adminRepository = getRepository(Admin);
-  try {
-    const user = await adminRepository.findOne({ where: { email } });
+  const user = await adminRepository.findOne({ where: { email } });
 
-    if (user) {
-      const customError = new CustomError(400, 'General', 'Admin already exists', [
-        `Email '${user.email}' already exists`,
-      ]);
-      return customError;
-    }
-
-    try {
-      const newUser = new Admin();
-      newUser.email = email;
-      newUser.password = password;
-      newUser.username = email;
-      newUser.name = name;
-      newUser.role = ROLE_ENUM.ADMIN;
-      newUser.phone = phone;
-      newUser.status = ADMIN_STATUS_ENUM.ACTIVE;
-      newUser.hashPassword();
-      await adminRepository.save(newUser);
-      return newUser;
-    } catch (err) {
-      const customError = new CustomError(400, 'Raw', `User '${email}' can't be created`, null, err);
-      return customError;
-    }
-  } catch (err) {
-    const customError = new CustomError(400, 'Raw', 'Error', null, err);
-    return customError;
+  if (user) {
+    throw new Error('Email already exists');
   }
+
+  const newUser = new Admin();
+  newUser.email = email;
+  newUser.password = password;
+  newUser.username = email;
+  newUser.name = name;
+  newUser.role = ROLE_ENUM.ADMIN;
+  newUser.phone = phone;
+  newUser.status = ADMIN_STATUS_ENUM.ACTIVE;
+  newUser.hashPassword();
+  await adminRepository.save(newUser);
+
+  const jwtPayload: JwtPayload = {
+    id: newUser.id,
+    name: newUser.name,
+    email: newUser.email,
+    role: newUser.role,
+    created_at: newUser.createdAt,
+  };
+
+  const token = createJwtToken(jwtPayload);
+  if (!token) {
+    throw Error('Cannot create token');
+  }
+  return token;
 };
 
 const login = async (email: string, password: string) => {
@@ -44,13 +44,11 @@ const login = async (email: string, password: string) => {
   const user = await adminRepository.findOne({ where: { email } });
 
   if (!user) {
-    const customError = new CustomError(404, 'General', 'Not Found', ['Incorrect email or password']);
-    return customError;
+    throw new Error('Not found user');
   }
 
   if (!user.checkIfPasswordMatch(password)) {
-    const customError = new CustomError(404, 'General', 'Not Found', ['Incorrect email or password']);
-    return customError;
+    throw new Error('Incorrect password or email');
   }
 
   const jwtPayload: JwtPayload = {
@@ -62,12 +60,33 @@ const login = async (email: string, password: string) => {
   };
 
   const token = createJwtToken(jwtPayload);
+  if (!token) {
+    throw Error('Cannot create token');
+  }
   return token;
+};
+
+const changePassword = async (id: number, password: string, passwordNew: string) => {
+  const adminRepository = getRepository(Admin);
+  const user = await adminRepository.findOne({ where: { id } });
+  if (!user) {
+    throw new Error('Not found user');
+  }
+
+  if (!user.checkIfPasswordMatch(password)) {
+    throw new Error('Incorrect password');
+  }
+
+  user.password = passwordNew;
+  user.hashPassword();
+  adminRepository.save(user);
+  return user;
 };
 
 const AdminService = {
   register,
   login,
+  changePassword,
 };
 
 export default AdminService;

@@ -1,47 +1,53 @@
-import { Request, Response, NextFunction } from 'express';
-import validator from 'validator';
-
 import { ConstsUser } from 'consts/ConstsUser';
-import { CustomError } from 'utils/response/custom-error/CustomError';
-import { ErrorValidation } from 'utils/response/custom-error/types';
 
-export const validatorRegister = (req: Request, res: Response, next: NextFunction) => {
-  let { email, password, passwordConfirm } = req.body;
-  const errorsValidation: ErrorValidation[] = [];
+import joi from 'joi';
+// import { PASSWORD_MIN_CHAR } from 'shared/constants/user';
 
-  email = !email ? '' : email;
-  password = !password ? '' : password;
-  passwordConfirm = !passwordConfirm ? '' : passwordConfirm;
+const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
-  if (!validator.isEmail(email)) {
-    errorsValidation.push({ email: 'Email is invalid' });
-  }
+// Minimum eight characters, at least one letter and one number:
+export const registerSchema = joi.object({
+  email: joi.string().email().required(),
+  password: joi.string().required().min(ConstsUser.PASSWORD_MIN_CHAR),
+});
 
-  if (validator.isEmpty(email)) {
-    errorsValidation.push({ email: 'Email is required' });
-  }
+// export const validatorRegister = (req: Request, res: Response, next: NextFunction) => {
+//   let { email, password, passwordConfirm } = req.body;
+//   const errorsValidation: ErrorValidation[] = [];
 
-  if (validator.isEmpty(password)) {
-    errorsValidation.push({ password: 'Password is required' });
-  }
+//   email = !email ? '' : email;
+//   password = !password ? '' : password;
+//   passwordConfirm = !passwordConfirm ? '' : passwordConfirm;
 
-  if (!validator.isLength(password, { min: ConstsUser.PASSWORD_MIN_CHAR })) {
-    errorsValidation.push({
-      password: `Password must be at least ${ConstsUser.PASSWORD_MIN_CHAR} characters`,
-    });
-  }
+//   if (!validator.isEmail(email)) {
+//     errorsValidation.push({ email: 'Email is invalid' });
+//   }
 
-  if (validator.isEmpty(passwordConfirm)) {
-    errorsValidation.push({ passwordConfirm: 'Confirm password is required' });
-  }
+//   if (validator.isEmpty(email)) {
+//     errorsValidation.push({ email: 'Email is required' });
+//   }
 
-  if (!validator.equals(password, passwordConfirm)) {
-    errorsValidation.push({ passwordConfirm: 'Passwords must match' });
-  }
+//   if (validator.isEmpty(password)) {
+//     errorsValidation.push({ password: 'Password is required' });
+//   }
 
-  if (errorsValidation.length !== 0) {
-    const customError = new CustomError(400, 'Validation', 'Register validation error', null, null, errorsValidation);
-    return next(customError);
-  }
-  return next();
-};
+//   if (!validator.isLength(password, { min: ConstsUser.PASSWORD_MIN_CHAR })) {
+//     errorsValidation.push({
+//       password: `Password must be at least ${ConstsUser.PASSWORD_MIN_CHAR} characters`,
+//     });
+//   }
+
+//   if (validator.isEmpty(passwordConfirm)) {
+//     errorsValidation.push({ passwordConfirm: 'Confirm password is required' });
+//   }
+
+//   if (!validator.equals(password, passwordConfirm)) {
+//     errorsValidation.push({ passwordConfirm: 'Passwords must match' });
+//   }
+
+//   if (errorsValidation.length !== 0) {
+//     const customError = new CustomError(400, 'Validation', 'Register validation error', null, null, errorsValidation);
+//     return next(customError);
+//   }
+//   return next();
+// };

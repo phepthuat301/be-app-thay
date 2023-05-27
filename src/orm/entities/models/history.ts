@@ -2,7 +2,7 @@ import { Entity, Column } from 'typeorm';
 
 import { ModelEntity } from './model';
 
-@Entity('History')
+@Entity('history')
 export class History extends ModelEntity {
   @Column({
     nullable: true,

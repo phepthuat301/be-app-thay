@@ -3,7 +3,7 @@ import { Entity, Column } from 'typeorm';
 import { ModelEntity } from './model';
 import { ITEM_STATUS_ENUM } from 'share/enum';
 
-@Entity('Item')
+@Entity('item')
 export class Item extends ModelEntity {
   @Column({
     nullable: true,

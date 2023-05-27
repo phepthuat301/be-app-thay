@@ -1,11 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column } from 'typeorm';
 
 import { ModelEntity } from './model';
 import { GENDER } from 'share/enum';
 
-@Entity('Customer')
+@Entity('customer')
 export class Customer extends ModelEntity {
-
   @Column({
     nullable: true,
     length: 255,
