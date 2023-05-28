@@ -61,9 +61,24 @@ const deleteItem = async (id: number) => {
   await itemRepository.delete({ id });
 };
 
+const getItemList = async () => {
+  const itemRepository = getRepository(Item);
+  const itemList = await itemRepository.find();
+  return itemList;
+};
+
 const getItem = async (id: number) => {
   const itemRepository = getRepository(Item);
   const item = await itemRepository.findOne({ where: { id } });
+  if (!item) {
+    throw new Error('Item not found');
+  }
+  return item;
+};
+
+const getItemByName = async (keyword: string) => {
+  const itemRepository = getRepository(Item);
+  const item = await itemRepository.findOne({ where: { name: keyword } });
   if (!item) {
     throw new Error('Item not found');
   }
@@ -75,6 +90,8 @@ const ItemService = {
   editItem,
   deleteItem,
   getItem,
+  getItemByName,
+  getItemList,
 };
 
 export default ItemService;
