@@ -18,7 +18,6 @@ export const edit = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     user.username = username;
-    user.name = name;
 
     try {
       await userRepository.save(user);

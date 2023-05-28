@@ -8,7 +8,7 @@ export const list = async (req: Request, res: Response, next: NextFunction) => {
   const userRepository = getRepository(Admin);
   try {
     const users = await userRepository.find({
-      select: ['id', 'username', 'name', 'email', 'role', 'createdAt', 'updatedAt'],
+      select: ['id', 'username', 'email', 'role', 'createdAt', 'updatedAt'],
       relations: ['role'],
     });
 

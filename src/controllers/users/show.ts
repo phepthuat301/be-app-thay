@@ -9,7 +9,7 @@ export const show = async (req: Request, res: Response, next: NextFunction) => {
 
   const userRepository = getRepository(Admin);
   try {
-    const user = await userRepository.findOne({ where: { id }, relations: ['role'] });
+    const user = await userRepository.findOne({ where: { id } });
 
     if (!user) {
       const customError = new CustomError(404, 'General', `User with id:${id} not found.`, ['User not found.']);

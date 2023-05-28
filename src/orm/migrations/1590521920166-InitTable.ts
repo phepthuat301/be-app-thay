@@ -10,7 +10,6 @@ export class CreateUsers1590521920166 implements MigrationInterface {
         "email" character varying(255) NOT NULL UNIQUE,
         "password" character varying(255) NOT NULL,
         "username" character varying(255),
-        "name" character varying(255),
         "role" character varying(30) DEFAULT 'ADMINISTATOR',
         "phone" character varying(255),
         "status" character varying(255),
@@ -23,7 +22,7 @@ export class CreateUsers1590521920166 implements MigrationInterface {
       `CREATE TABLE IF NOT EXISTS "customer" (
         "id" SERIAL PRIMARY KEY,
         "name" character varying(255),
-        "dateOfBirth" date NOT NULL,
+        "date_of_birth" date NOT NULL,
         "address" character varying(255),
         "phone" character varying(255),
         "gender" character varying,
@@ -51,7 +50,7 @@ export class CreateUsers1590521920166 implements MigrationInterface {
     );
 
     await queryRunner.query(
-      ` CREATE TABLE IF NOT EXISTS "Order" (
+      ` CREATE TABLE IF NOT EXISTS "order" (
         "id" SERIAL PRIMARY KEY,
         "client_id" character varying,
         "item_id" character varying,
