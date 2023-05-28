@@ -15,10 +15,6 @@ export interface ItemPayload {
 
 const createItem = async (name: string, price: number, reward_point: number, number_of_treatments: number) => {
   const itemRepository = getRepository(Item);
-  const item = await itemRepository.findOne({ where: { name } });
-  if (item) {
-    throw new Error('Item already exists');
-  }
 
   const newItem = new Item();
   newItem.name = name;
