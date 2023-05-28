@@ -68,11 +68,30 @@ const getCustomer = async (id: number) => {
   return customer;
 };
 
+const getCustomerList = async () => {
+  const customerRepository = getRepository(Customer);
+  const customerList = await customerRepository.find();
+  return customerList;
+};
+
+const getCustomerByName = async (keyword: string) => {
+  const customerRepository = getRepository(Customer);
+  //where column name like %keyword%
+  const customerList = await customerRepository.find({
+    where: {
+      name: keyword,
+    },
+  });
+  return customerList;
+};
+
 const CustomerService = {
   createCustomer,
   editCustomer,
   deleteCustomer,
   getCustomer,
+  getCustomerList,
+  getCustomerByName,
 };
 
 export default CustomerService;
