@@ -74,14 +74,15 @@ const getCustomerList = async () => {
   return customerList;
 };
 
-const getCustomerByName = async (keyword: string) => {
+const getCustomerByName = async (keyword: string, page: number, limit: number) => {
   const customerRepository = getRepository(Customer);
   //where column name like %keyword%
-  const customerList = await customerRepository.find({
-    where: {
-      name: keyword,
-    },
-  });
+  const customerList = await customerRepository
+    .createQueryBuilder('customer')
+    .where('customer.name like :keyword', { keyword: `%${keyword}%` })
+    .skip((page - 1) * limit)
+    .take(limit)
+    .getMany();
   return customerList;
 };
 
