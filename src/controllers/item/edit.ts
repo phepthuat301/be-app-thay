@@ -13,8 +13,8 @@ export const edit = async (req: Request, res: Response, next: NextFunction) => {
       number_of_treatments,
       status,
     };
-    const result = await ItemService.editItem(item);
-    return res.status(200).send({ message: 'Edit Item Sucessfully', success: true, data: { result } });
+    const data = await ItemService.editItem(item);
+    return res.status(200).send({ message: 'Edit Item Sucessfully', success: true, data });
   } catch (err) {
     console.log(err);
     return res.status(400).send({ message: err.message, success: false, data: {} });
