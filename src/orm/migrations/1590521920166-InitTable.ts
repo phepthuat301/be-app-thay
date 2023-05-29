@@ -52,8 +52,8 @@ export class CreateUsers1590521920166 implements MigrationInterface {
     await queryRunner.query(
       ` CREATE TABLE IF NOT EXISTS "order" (
         "id" SERIAL PRIMARY KEY,
-        "client_id" character varying,
-        "item_id" character varying,
+        "client_id" integer,
+        "item_id" integer,
         "treatment_progress" integer,
         "price" numeric(10,2) DEFAULT 0,
         "paid" numeric(10,2) DEFAULT 0,
@@ -65,7 +65,7 @@ export class CreateUsers1590521920166 implements MigrationInterface {
     await queryRunner.query(
       `CREATE TABLE IF NOT EXISTS "history" (
         "id" SERIAL PRIMARY KEY,
-        "order_id" character varying,
+        "order_id" integer,
         "treatment_progress" integer,
         "pay_date" date,
         "price" numeric(10,2) DEFAULT 0, 

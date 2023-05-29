@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import CustomerService from 'services/customer.servies';
-import { CustomerPayload } from 'services/customer.servies';
+import CustomerService from 'services/customer.services';
+import { CustomerPayload } from 'services/customer.services';
 export const edit = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id, name, date_of_birth, address, phone, gender, note, pathological } = req.body;

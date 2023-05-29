@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import CustomerService from 'services/customer.servies';
+import CustomerService from 'services/customer.services';
 
 export const create = async (req: Request, res: Response, next: NextFunction) => {
   try {

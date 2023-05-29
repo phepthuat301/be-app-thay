@@ -8,7 +8,7 @@ export class History extends ModelEntity {
     nullable: true,
     unique: true,
   })
-  order_id: string;
+  order_id: number;
 
   @Column({ nullable: true })
   treatment_progress: number;
