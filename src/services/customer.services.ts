@@ -40,6 +40,7 @@ const editCustomer = async (customer: CustomerPayload, id: number) => {
   if (!customerToUpdate) {
     throw new Error('Customer not found');
   }
+  console.log(customer.reward_point);
   customerToUpdate.name = customer.name;
   customerToUpdate.date_of_birth = customer.date_of_birth;
   customerToUpdate.address = customer.address;
@@ -49,6 +50,7 @@ const editCustomer = async (customer: CustomerPayload, id: number) => {
   customerToUpdate.pathological = customer.pathological;
   customerToUpdate.reward_point = customer.reward_point;
   await customerRepository.save(customerToUpdate);
+  return customerToUpdate;
 };
 
 const deleteCustomer = async (id: number) => {

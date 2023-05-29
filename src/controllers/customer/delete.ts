@@ -4,7 +4,7 @@ export const deleteCustomer = async (req: Request, res: Response, next: NextFunc
   try {
     const { id } = req.body;
     const result = await CustomerService.deleteCustomer(id);
-    return res.status(200).send({ message: 'Edit Customer Sucessfully', success: true, data: { result } });
+    return res.status(200).send({ message: 'Delete Customer Sucessfully', success: true, data: { result } });
   } catch (err) {
     console.log(err);
     return res.status(400).send({ message: err.message, success: false, data: {} });

@@ -3,7 +3,7 @@ import CustomerService from 'services/customer.services';
 import { CustomerPayload } from 'services/customer.services';
 export const edit = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id, name, date_of_birth, address, phone, gender, note, pathological } = req.body;
+    const { id, name, date_of_birth, address, phone, gender, note, pathological, reward_point } = req.body;
     const customer: CustomerPayload = {
       name,
       date_of_birth,
@@ -12,6 +12,7 @@ export const edit = async (req: Request, res: Response, next: NextFunction) => {
       gender,
       note,
       pathological,
+      reward_point,
     };
     const result = await CustomerService.editCustomer(customer, id);
     return res.status(200).send({ message: 'Edit Customer Sucessfully', success: true, data: { result } });

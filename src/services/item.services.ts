@@ -28,29 +28,33 @@ const createItem = async (name: string, price: number, reward_point: number, num
 };
 const editItem = async (item: ItemPayload) => {
   const itemRepository = getRepository(Item);
-  // const itemToUpdate = await itemRepository.findOne({ where: { id: item.id } });
-  // if (!itemToUpdate) {
-  //   throw new Error('Item not found');
-  // }
-  // itemToUpdate.name = item.name;
-  // itemToUpdate.price = item.price;
-  // itemToUpdate.reward_point = item.reward_point;
-  // itemToUpdate.number_of_treatments = item.number_of_treatments;
-  // await itemRepository.save(itemToUpdate);
-  // return itemToUpdate;
+
+  const updateFields: Partial<Item> = {};
+
+  if (item.name) {
+    updateFields.name = item.name;
+  }
+  if (item.price) {
+    updateFields.price = item.price;
+  }
+  if (item.reward_point) {
+    updateFields.reward_point = item.reward_point;
+  }
+  if (item.number_of_treatments) {
+    updateFields.number_of_treatments = item.number_of_treatments;
+  }
+  if (item.status) {
+    updateFields.status = item.status;
+  }
 
   const result = await itemRepository
     .createQueryBuilder()
     .update(Item)
-    .set({
-      name: item.name,
-      price: item.price,
-      reward_point: item.reward_point,
-      number_of_treatments: item.number_of_treatments,
-    })
+    .set(updateFields)
     .where('id = :id', { id: item.id })
+    .returning('*')
     .execute();
-  return result;
+  return result.raw[0];
 };
 const deleteItem = async (id: number) => {
   const itemRepository = getRepository(Item);

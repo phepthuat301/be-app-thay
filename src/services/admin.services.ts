@@ -75,14 +75,27 @@ const changePassword = async (id: number, password: string, passwordNew: string)
 
   user.password = passwordNew;
   user.hashPassword();
-  adminRepository.save(user);
-  return user;
+  await adminRepository.save(user);
+};
+
+const getAdminInfo = async (id: number) => {
+  const adminRepository = getRepository(Admin);
+  const user = await adminRepository.findOne({ where: { id } });
+  if (!user) {
+    throw new Error('Not found user');
+  }
+  return {
+    id: user.id,
+    email: user.email,
+    phone: user.phone,
+  };
 };
 
 const AdminService = {
   register,
   login,
   changePassword,
+  getAdminInfo,
 };
 
 export default AdminService;
