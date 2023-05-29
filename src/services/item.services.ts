@@ -76,12 +76,17 @@ const getItem = async (id: number) => {
   return item;
 };
 
-const getItemByName = async (keyword: string) => {
+const getItemByName = async (keyword: string, page: number, litmit: number) => {
   const itemRepository = getRepository(Item);
-  const item = await itemRepository.findOne({ where: { name: keyword } });
+  const item = await itemRepository.find({
+    where: { name: keyword },
+    skip: (page - 1) * litmit,
+    take: litmit,
+  });
   if (!item) {
     throw new Error('Item not found');
   }
+
   return item;
 };
 

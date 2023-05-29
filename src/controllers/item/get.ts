@@ -3,8 +3,9 @@ import ItemService from 'services/item.services';
 export const getItemByName = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { keyword } = req.body;
-
-    const result = await ItemService.getItemByName(keyword);
+    let page = req.body.page ? parseInt(req.body.page as string) : 1;
+    let limit = req.body.limit ? parseInt(req.body.limit as string) : 10;
+    const result = await ItemService.getItemByName(keyword, page, limit);
     return res.status(200).send({ message: 'Get Item By Name Sucessfully', success: true, data: { result } });
   } catch (err) {
     console.log(err);
