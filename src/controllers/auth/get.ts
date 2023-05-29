@@ -2,10 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 import { CustomError } from 'utils/response/custom-error/CustomError';
 import AdminService from 'services/admin.services';
 
-export const login = async (req: Request, res: Response, next: NextFunction) => {
+export const getAdminInfo = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, password } = req.body;
-    const token = await AdminService.login(email, password);
+    const { id } = req.jwtPayload;
+    const result = await AdminService.getAdminInfo(id);
     return res.status(200).send({ message: 'Login Sucessfully', success: true, data: { token } });
   } catch (err) {
     console.log(err);
