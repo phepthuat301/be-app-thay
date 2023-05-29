@@ -6,7 +6,7 @@ export const getAdminInfo = async (req: Request, res: Response, next: NextFuncti
   try {
     const { id } = req.jwtPayload;
     const result = await AdminService.getAdminInfo(id);
-    return res.status(200).send({ message: 'Login Sucessfully', success: true, data: { token } });
+    return res.status(200).send({ message: 'Login Sucessfully', success: true, data: { result } });
   } catch (err) {
     console.log(err);
     return res.status(400).send({ message: err.message, success: false, data: {} });
