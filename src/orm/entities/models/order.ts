@@ -8,13 +8,13 @@ export class Order extends ModelEntity {
     nullable: true,
     unique: true,
   })
-  client_id: string;
+  client_id: number;
 
   @Column({
     nullable: true,
     unique: true,
   })
-  item_id: string;
+  item_id: number;
 
   @Column({ nullable: true })
   treatment_progress: number;
