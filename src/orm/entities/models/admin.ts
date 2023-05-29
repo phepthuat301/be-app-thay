@@ -20,11 +20,6 @@ export class Admin extends ModelEntity {
   username: string;
 
   @Column({
-    nullable: true,
-  })
-  name: string;
-
-  @Column({
     default: 'ADMINISTATOR',
     length: 30,
   })

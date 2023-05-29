@@ -6,9 +6,9 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   try {
     const { email, password } = req.body;
     const token = await AdminService.login(email, password);
-    res.customSuccess(200, 'Admin successfully logged in.', token);
+    return res.customSuccess(200, 'Admin successfully logged in.', token);
   } catch (err) {
-    const customError = new CustomError(400, 'Raw', 'Error', null, err);
-    return next(customError);
+    console.log(err);
+    return res.status(400).send({ message: err.message, success: false, data: {} });
   }
 };

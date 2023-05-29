@@ -12,7 +12,7 @@ export class Customer extends ModelEntity {
   name: string;
 
   @Column({})
-  dateOfBirth: Date;
+  date_of_birth: Date;
 
   @Column({
     nullable: true,

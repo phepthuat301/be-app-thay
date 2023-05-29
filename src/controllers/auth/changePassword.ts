@@ -9,9 +9,9 @@ export const changePassword = async (req: Request, res: Response, next: NextFunc
     const { id } = req.jwtPayload;
 
     const result = await AdminService.changePassword(id, password, passwordNew);
-    res.customSuccess(200, 'Password successfully changed.', result);
+    return res.customSuccess(200, 'Password successfully changed.', result);
   } catch (err) {
-    const customError = new CustomError(400, 'Raw', 'Error', null, err);
-    return next(customError);
+    console.log(err);
+    return res.status(400).send({ message: err.message, success: false, data: {} });
   }
 };
