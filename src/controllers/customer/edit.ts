@@ -14,8 +14,8 @@ export const edit = async (req: Request, res: Response, next: NextFunction) => {
       pathological,
       reward_point,
     };
-    const result = await CustomerService.editCustomer(customer, id);
-    return res.status(200).send({ message: 'Edit Customer Sucessfully', success: true, data: { result } });
+    const data = await CustomerService.editCustomer(customer, id);
+    return res.status(200).send({ message: 'Edit Customer Sucessfully', success: true, data });
   } catch (err) {
     console.log(err);
     return res.status(400).send({ message: err.message, success: false, data: {} });
