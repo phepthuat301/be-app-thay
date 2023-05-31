@@ -17,99 +17,101 @@ export interface CustomerPayload {
 
 export const PREFIX_REFERRAL_CODE = 'THIENHIEU';
 
-const createCustomer = async (customer: CustomerPayload, refferal_code: string) => {
-  const customerRepository = getRepository(Customer);
+export class CustomerService {
+  private static instance: CustomerService;
+  private constructor() {}
 
-  const oldCustomer = await customerRepository.findOne({ where: { phone: customer.phone } });
-  if (oldCustomer) {
-    throw new Error('Customer already exists');
+  public static getInstance(): CustomerService {
+    if (!CustomerService.instance) {
+      CustomerService.instance = new CustomerService();
+    }
+
+    return CustomerService.instance;
   }
 
-  const count = await customerRepository.count();
-  const newCustomer = new Customer();
-  newCustomer.name = customer.name;
-  newCustomer.date_of_birth = customer.date_of_birth;
-  newCustomer.address = customer.address;
-  newCustomer.phone = customer.phone;
-  newCustomer.gender = customer.gender as GENDER;
-  newCustomer.note = customer.note;
-  newCustomer.refferal_code = `${PREFIX_REFERRAL_CODE}-${count + 1}`;
-  newCustomer.pathological = customer.pathological;
-  newCustomer.reward_point = 0;
-  newCustomer.status = CUSTOMER_STATUS_ENUM.ACTIVE;
-  await customerRepository.save(newCustomer);
+  createCustomer = async (customer: CustomerPayload, refferal_code: string) => {
+    const customerRepository = getRepository(Customer);
 
-  if (refferal_code) {
-    await ReferralService.getInstance().submitReferral(refferal_code, newCustomer.id);
-  }
+    const oldCustomer = await customerRepository.findOne({ where: { phone: customer.phone } });
+    if (oldCustomer) {
+      throw new Error('Customer already exists');
+    }
 
-  return newCustomer;
-};
-const editCustomer = async (customer: CustomerPayload, id: number) => {
-  const customerRepository = getRepository(Customer);
-  const customerToUpdate = await customerRepository.findOne({ where: { id, status: CUSTOMER_STATUS_ENUM.ACTIVE } });
+    const count = await customerRepository.count();
+    const newCustomer = new Customer();
+    newCustomer.name = customer.name;
+    newCustomer.date_of_birth = customer.date_of_birth;
+    newCustomer.address = customer.address;
+    newCustomer.phone = customer.phone;
+    newCustomer.gender = customer.gender as GENDER;
+    newCustomer.note = customer.note;
+    newCustomer.refferal_code = `${PREFIX_REFERRAL_CODE}-${count + 1}`;
+    newCustomer.pathological = customer.pathological;
+    newCustomer.reward_point = 0;
+    newCustomer.status = CUSTOMER_STATUS_ENUM.ACTIVE;
+    await customerRepository.save(newCustomer);
 
-  if (!customerToUpdate) {
-    throw new Error('Customer not found');
-  }
-  console.log(customer.reward_point);
-  customerToUpdate.name = customer.name;
-  customerToUpdate.date_of_birth = customer.date_of_birth;
-  customerToUpdate.address = customer.address;
-  customerToUpdate.phone = customer.phone;
-  customerToUpdate.gender = customer.gender;
-  customerToUpdate.note = customer.note;
-  customerToUpdate.pathological = customer.pathological;
-  customerToUpdate.reward_point = customer.reward_point;
-  await customerRepository.save(customerToUpdate);
-  return customerToUpdate;
-};
+    if (refferal_code) {
+      await ReferralService.getInstance().submitReferral(refferal_code, newCustomer.id);
+    }
 
-const deleteCustomer = async (id: number) => {
-  const customerRepository = getRepository(Customer);
-  const customer = await customerRepository.findOne({ where: { id, status: CUSTOMER_STATUS_ENUM.ACTIVE } });
-  if (!customer) {
-    throw new Error('Customer not found');
-  }
-  customer.status = CUSTOMER_STATUS_ENUM.DELETED;
-  await customerRepository.save(customer);
-};
-const getCustomer = async (id: number) => {
-  const customerRepository = getRepository(Customer);
-  const customer = await customerRepository.findOne({ where: { id } });
-  if (!customer) {
-    throw new Error('Customer not found');
-  }
-  return customer;
-};
+    return newCustomer;
+  };
+  editCustomer = async (customer: CustomerPayload, id: number) => {
+    const customerRepository = getRepository(Customer);
+    const customerToUpdate = await customerRepository.findOne({ where: { id, status: CUSTOMER_STATUS_ENUM.ACTIVE } });
 
-const getCustomerList = async () => {
-  const customerRepository = getRepository(Customer);
-  const customerList = await customerRepository.find();
-  return customerList;
-};
+    if (!customerToUpdate) {
+      throw new Error('Customer not found');
+    }
+    console.log(customer.reward_point);
+    customerToUpdate.name = customer.name;
+    customerToUpdate.date_of_birth = customer.date_of_birth;
+    customerToUpdate.address = customer.address;
+    customerToUpdate.phone = customer.phone;
+    customerToUpdate.gender = customer.gender;
+    customerToUpdate.note = customer.note;
+    customerToUpdate.pathological = customer.pathological;
+    customerToUpdate.reward_point = customer.reward_point;
+    await customerRepository.save(customerToUpdate);
+    return customerToUpdate;
+  };
 
-const getCustomerByName = async (keyword: string, page: number, limit: number) => {
-  const customerRepository = getRepository(Customer);
-  //where column name like %keyword%
-  //add status = ACTIVE
-  const customerList = await customerRepository
-    .createQueryBuilder('customer')
-    .where('customer.name like :keyword', { keyword: `%${keyword}%` })
-    .andWhere('customer.status = :status', { status: CUSTOMER_STATUS_ENUM.ACTIVE })
-    .skip((page - 1) * limit)
-    .take(limit)
-    .getMany();
-  return customerList;
-};
+  deleteCustomer = async (id: number) => {
+    const customerRepository = getRepository(Customer);
+    const customer = await customerRepository.findOne({ where: { id, status: CUSTOMER_STATUS_ENUM.ACTIVE } });
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+    customer.status = CUSTOMER_STATUS_ENUM.DELETED;
+    await customerRepository.save(customer);
+  };
+  getCustomer = async (id: number) => {
+    const customerRepository = getRepository(Customer);
+    const customer = await customerRepository.findOne({ where: { id } });
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+    return customer;
+  };
 
-const CustomerService = {
-  createCustomer,
-  editCustomer,
-  deleteCustomer,
-  getCustomer,
-  getCustomerList,
-  getCustomerByName,
-};
+  getCustomerList = async () => {
+    const customerRepository = getRepository(Customer);
+    const customerList = await customerRepository.find();
+    return customerList;
+  };
 
-export default CustomerService;
+  getCustomerByName = async (keyword: string, page: number, limit: number) => {
+    const customerRepository = getRepository(Customer);
+    //where column name like %keyword%
+    //add status = ACTIVE
+    const customerList = await customerRepository
+      .createQueryBuilder('customer')
+      .where('customer.name like :keyword', { keyword: `%${keyword}%` })
+      .andWhere('customer.status = :status', { status: CUSTOMER_STATUS_ENUM.ACTIVE })
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany();
+    return customerList;
+  };
+}

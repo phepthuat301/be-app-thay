@@ -3,61 +3,71 @@ import { History } from 'orm/entities/models/history';
 import { Order } from 'orm/entities/models/order';
 
 import { getRepository } from 'typeorm';
+import { OrderService } from './order.services';
 
-const createHistory = async (order_id: number, treatment_progress: number, pay_date: Date, price: number) => {
-  const historyRepository = getRepository(History);
+export class HistoryService {
+  private static instance: HistoryService;
 
-  const newHistory = new History();
-  newHistory.order_id = order_id;
-  newHistory.treatment_progress = treatment_progress;
-  newHistory.pay_date = pay_date;
-  newHistory.price = price;
-  await historyRepository.save(newHistory);
-  return newHistory;
-};
+  public static getInstance(): HistoryService {
+    if (!HistoryService.instance) {
+      HistoryService.instance = new HistoryService();
+    }
 
-const getHistoryByName = async (name: string, page: number, limit: number) => {
-  const customerRepository = getRepository(Customer);
-  const orderRepository = getRepository(Order);
-
-  const customerList = await customerRepository
-    .createQueryBuilder('customer')
-    .where('customer.name like :keyword', { keyword: `%${name}%` })
-    .skip((page - 1) * limit)
-    .take(limit)
-    .getMany();
-  if (!customerList) {
-    throw new Error('Customer not found');
+    return HistoryService.instance;
   }
 
-  const customerIdList = customerList.map((customer) => customer.id);
+  createHistory = async (order_id: number, treatment_progress: number, pay_date: Date, price: number) => {
+    const historyRepository = getRepository(History);
 
-  //get orderlist from customer id
+    const newHistory = new History();
+    newHistory.order_id = order_id;
+    newHistory.treatment_progress = treatment_progress;
+    newHistory.pay_date = pay_date;
+    newHistory.price = price;
+    await historyRepository.save(newHistory);
 
-  const orderList = await orderRepository
-    .createQueryBuilder('order')
-    .where('order.client_id IN (:...customerIdList)', { customerIdList })
-    .skip((page - 1) * limit)
-    .take(limit)
-    .getMany();
+    //update order
+    await OrderService.getInstance().updateOrder(order_id, price);
 
-  const orderIdList = orderList.map((order) => order.id);
+    return newHistory;
+  };
 
-  //get history from order id
+  getHistoryByName = async (name: string, page: number, limit: number) => {
+    const customerRepository = getRepository(Customer);
+    const orderRepository = getRepository(Order);
 
-  const historyList = await getRepository(History)
-    .createQueryBuilder('history')
-    .where('history.order_id IN (:...orderIdList)', { orderIdList })
-    .skip((page - 1) * limit)
-    .take(limit)
-    .getMany();
+    const customerList = await customerRepository
+      .createQueryBuilder('customer')
+      .where('customer.name like :keyword', { keyword: `%${name}%` })
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany();
+    if (!customerList) {
+      throw new Error('Customer not found');
+    }
 
-  return historyList;
-};
+    const customerIdList = customerList.map((customer) => customer.id);
 
-const HistoryService = {
-  createHistory,
-  getHistoryByName,
-};
+    //get orderlist from customer id
 
-export default HistoryService;
+    const orderList = await orderRepository
+      .createQueryBuilder('order')
+      .where('order.client_id IN (:...customerIdList)', { customerIdList })
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany();
+
+    const orderIdList = orderList.map((order) => order.id);
+
+    //get history from order id
+
+    const historyList = await getRepository(History)
+      .createQueryBuilder('history')
+      .where('history.order_id IN (:...orderIdList)', { orderIdList })
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany();
+
+    return historyList;
+  };
+}

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import CustomerService from 'services/customer.services';
+import {CustomerService} from 'services/customer.services';
 import { CustomerPayload } from 'services/customer.services';
 export const edit = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -14,7 +14,7 @@ export const edit = async (req: Request, res: Response, next: NextFunction) => {
       pathological,
       reward_point,
     };
-    const data = await CustomerService.editCustomer(customer, id);
+    const data = await CustomerService.getInstance().editCustomer(customer, id);
     return res.status(200).send({ message: 'Edit Customer Sucessfully', success: true, data });
   } catch (err) {
     console.log(err);
