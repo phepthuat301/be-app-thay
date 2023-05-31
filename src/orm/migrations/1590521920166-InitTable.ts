@@ -21,15 +21,15 @@ export class CreateUsers1590521920166 implements MigrationInterface {
     await queryRunner.query(
       `CREATE TABLE IF NOT EXISTS "customer" (
         "id" SERIAL PRIMARY KEY,
-        "name" character varying(255),
-        "date_of_birth" date NOT NULL,
+        "name" character varying(255) NOT NULL,
+        "date_of_birth" date,
         "address" character varying(255),
         "phone" character varying(255) NOT NULL,
         "gender" character varying,
-        "note" character varying NOT NULL,
+        "note" character varying,
         "status" character varying,
-        "refferal_code" character varying,
-        "pathological" character varying NOT NULL,
+        "refferal_code" character varying NOT NULL,
+        "pathological" character varying,
         "reward_point" integer DEFAULT 0,
         "created_at" TIMESTAMP NOT NULL DEFAULT now(),
         "updated_at" TIMESTAMP NOT NULL DEFAULT now()
