@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import OrderService from 'services/order.services';
+import { OrderService } from 'services/order.services';
 
 export const create = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { client_id, item_id, treatment_progress, price, paid } = req.body;
-    const data = await OrderService.createOrder(client_id, item_id, treatment_progress, price, paid);
+    const data = await OrderService.getInstance().createOrder(client_id, item_id, treatment_progress, price, paid);
     return res.status(200).send({ message: 'Create Order Sucessfully', success: true, data });
   } catch (err) {
     console.log(err);

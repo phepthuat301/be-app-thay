@@ -21,7 +21,7 @@ export class Customer extends ModelEntity {
   address: string;
 
   @Column({
-    nullable: true,
+    nullable: false,
     length: 255,
   })
   phone: string;
