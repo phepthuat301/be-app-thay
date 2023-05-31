@@ -77,7 +77,7 @@ export class CreateUsers1590521920166 implements MigrationInterface {
     );
 
     await queryRunner.query(
-      `CREATE TABLE IF NOT EXITS "configuration" (
+      `CREATE TABLE IF NOT EXISTS "configuration" (
         "id" SERIAL PRIMARY KEY,
         "key" character varying NOT NULL,
         "value" character varying NOT NULL,
@@ -87,7 +87,7 @@ export class CreateUsers1590521920166 implements MigrationInterface {
     );
 
     await queryRunner.query(
-      `CREATE TABLE IF NOT EXITS "referral" (
+      `CREATE TABLE IF NOT EXISTS "referral" (
         "id" SERIAL PRIMARY KEY,
         "referee_id" integer NOT NULL,
         "referrer_id" integer NOT NULL,
