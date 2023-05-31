@@ -11,5 +11,5 @@ router.use('/auth', auth);
 router.use('/customers', customers);
 router.use('/items', items);
 router.use('/history', history);
-router.use('/order', order);
+router.use('/orders', order);
 export default router;

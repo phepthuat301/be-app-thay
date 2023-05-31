@@ -25,9 +25,21 @@ const createOrder = async (
 const getOderByName = async (name: string, page: number, limit: number) => {
   const orderRepository = getRepository(Order);
 
+  const customerRepository = getRepository(Customer);
+  const customerList = await customerRepository
+    .createQueryBuilder('customer')
+    .where('customer.name like :keyword', { keyword: `%${name}%` })
+    .skip((page - 1) * limit)
+    .take(limit)
+    .getMany();
+  if (!customerList) {
+    throw new Error('Customer not found');
+  }
+  const customerIdList = customerList.map((customer) => customer.id);
+
   const orderList = await orderRepository
     .createQueryBuilder('order')
-    .innerJoin('order.client', 'client', 'client.name = :name', { name })
+    .where('order.client_id IN (:...customerIdList)', { customerIdList })
     .skip((page - 1) * limit)
     .take(limit)
     .getMany();

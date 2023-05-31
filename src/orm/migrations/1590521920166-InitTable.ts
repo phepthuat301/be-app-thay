@@ -27,6 +27,7 @@ export class CreateUsers1590521920166 implements MigrationInterface {
         "phone" character varying(255) NOT NULL,
         "gender" character varying,
         "note" character varying,
+        "status" character varying,
         "refferal_code" character varying NOT NULL,
         "pathological" character varying,
         "reward_point" integer DEFAULT 0,
@@ -42,6 +43,7 @@ export class CreateUsers1590521920166 implements MigrationInterface {
         "name" character varying,
         "status" character varying,
         "price" numeric(10,2) DEFAULT 0,
+        "payment" character varying,
         "reward_point" integer,
         "number_of_treatments" integer,
         "created_at" TIMESTAMP NOT NULL DEFAULT now(),
@@ -72,6 +74,26 @@ export class CreateUsers1590521920166 implements MigrationInterface {
         "created_at" TIMESTAMP NOT NULL DEFAULT now(),
         "updated_at" TIMESTAMP NOT NULL DEFAULT now()
     )`,
+    );
+
+    await queryRunner.query(
+      `CREATE TABLE IF NOT EXITS "configuration" (
+        "id" SERIAL PRIMARY KEY,
+        "key" character varying NOT NULL,
+        "value" character varying NOT NULL,
+        "created_at" TIMESTAMP NOT NULL DEFAULT now(),
+        "updated_at" TIMESTAMP NOT NULL DEFAULT now()
+      )`,
+    );
+
+    await queryRunner.query(
+      `CREATE TABLE IF NOT EXITS "referral" (
+        "id" SERIAL PRIMARY KEY,
+        "referee_id" integer NOT NULL,
+        "referrer_id" integer NOT NULL,
+        "created_at" TIMESTAMP NOT NULL DEFAULT now(),
+        "updated_at" TIMESTAMP NOT NULL DEFAULT now()
+      )`,
     );
   }
 
