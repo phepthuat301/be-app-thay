@@ -1,7 +1,7 @@
 import { Entity, Column } from 'typeorm';
 
 import { ModelEntity } from './model';
-import { ITEM_STATUS_ENUM } from 'share/enum';
+import { ITEM_STATUS_ENUM, PAYMENT_ENUM } from 'share/enum';
 
 @Entity('item')
 export class Item extends ModelEntity {
@@ -18,6 +18,11 @@ export class Item extends ModelEntity {
     nullable: true,
   })
   status: ITEM_STATUS_ENUM;
+
+  @Column({
+    nullable: true,
+  })
+  payment: PAYMENT_ENUM;
 
   @Column({ nullable: true, type: 'numeric', precision: 10, scale: 2, default: 0 })
   price: number;

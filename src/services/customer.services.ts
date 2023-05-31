@@ -1,6 +1,7 @@
 import { Customer } from 'orm/entities/models/customer';
-import { GENDER } from 'share/enum';
+import { CUSTOMER_STATUS_ENUM, GENDER } from 'share/enum';
 import { getRepository } from 'typeorm';
+import { ReferralService } from './referral.services';
 
 export interface CustomerPayload {
   name?: string;
@@ -16,8 +17,13 @@ export interface CustomerPayload {
 
 export const PREFIX_REFERRAL_CODE = 'THIENHIEU';
 
-const createCustomer = async (customer: CustomerPayload) => {
+const createCustomer = async (customer: CustomerPayload, refferal_code: string) => {
   const customerRepository = getRepository(Customer);
+
+  const oldCustomer = await customerRepository.findOne({ where: { phone: customer.phone } });
+  if (oldCustomer) {
+    throw new Error('Customer already exists');
+  }
 
   const count = await customerRepository.count();
   const newCustomer = new Customer();
@@ -30,13 +36,19 @@ const createCustomer = async (customer: CustomerPayload) => {
   newCustomer.refferal_code = `${PREFIX_REFERRAL_CODE}-${count + 1}`;
   newCustomer.pathological = customer.pathological;
   newCustomer.reward_point = 0;
-
+  newCustomer.status = CUSTOMER_STATUS_ENUM.ACTIVE;
   await customerRepository.save(newCustomer);
+
+  if (refferal_code) {
+    await ReferralService.getInstance().submitReferral(refferal_code, newCustomer.id);
+  }
+
   return newCustomer;
 };
 const editCustomer = async (customer: CustomerPayload, id: number) => {
   const customerRepository = getRepository(Customer);
-  const customerToUpdate = await customerRepository.findOne({ where: { id: id } });
+  const customerToUpdate = await customerRepository.findOne({ where: { id, status: CUSTOMER_STATUS_ENUM.ACTIVE } });
+
   if (!customerToUpdate) {
     throw new Error('Customer not found');
   }
@@ -55,11 +67,12 @@ const editCustomer = async (customer: CustomerPayload, id: number) => {
 
 const deleteCustomer = async (id: number) => {
   const customerRepository = getRepository(Customer);
-  const customer = await customerRepository.findOne({ where: { id } });
+  const customer = await customerRepository.findOne({ where: { id, status: CUSTOMER_STATUS_ENUM.ACTIVE } });
   if (!customer) {
     throw new Error('Customer not found');
   }
-  await customerRepository.delete(id);
+  customer.status = CUSTOMER_STATUS_ENUM.DELETED;
+  await customerRepository.save(customer);
 };
 const getCustomer = async (id: number) => {
   const customerRepository = getRepository(Customer);
@@ -79,9 +92,11 @@ const getCustomerList = async () => {
 const getCustomerByName = async (keyword: string, page: number, limit: number) => {
   const customerRepository = getRepository(Customer);
   //where column name like %keyword%
+  //add status = ACTIVE
   const customerList = await customerRepository
     .createQueryBuilder('customer')
     .where('customer.name like :keyword', { keyword: `%${keyword}%` })
+    .andWhere('customer.status = :status', { status: CUSTOMER_STATUS_ENUM.ACTIVE })
     .skip((page - 1) * limit)
     .take(limit)
     .getMany();

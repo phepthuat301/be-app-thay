@@ -14,6 +14,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { getLanguage } from './middleware/getLanguage';
 import { dbCreateConnection } from './orm/dbCreateConnection';
 import routes from './routes';
+import { InitService } from 'services';
 
 export const app = express();
 app.use(cors());
@@ -43,4 +44,5 @@ app.listen(port, () => {
 
 (async () => {
   await dbCreateConnection();
+  await InitService();
 })();

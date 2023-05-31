@@ -1,7 +1,7 @@
 import { Entity, Column } from 'typeorm';
 
 import { ModelEntity } from './model';
-import { GENDER } from 'share/enum';
+import { CUSTOMER_STATUS_ENUM, GENDER } from 'share/enum';
 
 @Entity('customer')
 export class Customer extends ModelEntity {
@@ -30,6 +30,11 @@ export class Customer extends ModelEntity {
     nullable: true,
   })
   gender: GENDER;
+
+  @Column({
+    nullable: true,
+  })
+  status: CUSTOMER_STATUS_ENUM;
 
   @Column({})
   note: string;

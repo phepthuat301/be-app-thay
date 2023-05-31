@@ -64,7 +64,7 @@ const login = async (email: string, password: string) => {
 
 const changePassword = async (id: number, password: string, passwordNew: string) => {
   const adminRepository = getRepository(Admin);
-  const user = await adminRepository.findOne({ where: { id } });
+  const user = await adminRepository.findOne({ where: { id, status: ADMIN_STATUS_ENUM.ACTIVE } });
   if (!user) {
     throw new Error('Not found user');
   }
@@ -80,7 +80,7 @@ const changePassword = async (id: number, password: string, passwordNew: string)
 
 const getAdminInfo = async (id: number) => {
   const adminRepository = getRepository(Admin);
-  const user = await adminRepository.findOne({ where: { id } });
+  const user = await adminRepository.findOne({ where: { id, status: ADMIN_STATUS_ENUM.ACTIVE } });
   if (!user) {
     throw new Error('Not found user');
   }

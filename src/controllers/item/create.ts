@@ -1,10 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
-import ItemService from 'services/item.services';
+import { ItemService } from 'services/item.services';
 
 export const create = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, price, reward_point, number_of_treatments } = req.body;
-    const data = await ItemService.createItem(name, price, reward_point, number_of_treatments);
+    const { name, price, reward_point, number_of_treatments, payment_method } = req.body;
+    const data = await await ItemService.getInstance().createItem(
+      name,
+      price,
+      reward_point,
+      number_of_treatments,
+      payment_method,
+    );
     return res.status(200).send({ message: 'Create Item Sucessfully', success: true, data });
   } catch (err) {
     console.log(err);

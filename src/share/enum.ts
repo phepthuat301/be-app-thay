@@ -19,3 +19,13 @@ export enum ADMIN_STATUS_ENUM {
   INACTIVE = 'INACTIVE',
   DELETED = 'DELETED',
 }
+
+export enum CUSTOMER_STATUS_ENUM {
+  ACTIVE = 'ACTIVE',
+  DELETED = 'DELETED',
+}
+
+export enum PAYMENT_ENUM {
+  MONEY = 'MONEY',
+  POINT = 'POINT',
+}
