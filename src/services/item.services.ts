@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Item } from 'orm/entities/models/item';
+import { Order } from 'orm/entities/models/order';
 import { ITEM_STATUS_ENUM, PAYMENT_ENUM } from 'share/enum';
 import { getRepository, ILike, Like } from 'typeorm';
 
@@ -84,10 +85,17 @@ export class ItemService {
   };
 
   deleteItem = async (id: number) => {
+    if (!id) throw new Error('Not found ID');
     const itemRepository = getRepository(Item);
-    const item = await itemRepository.findOne({ where: { id } });
+    const [item, order] = await Promise.all([
+      itemRepository.findOne({ where: { id } }),
+      getRepository(Order).findOne({ where: { item_id: id } })
+    ])
     if (!item) {
       throw new Error('Item not found');
+    }
+    if (order) {
+      throw new Error(`This service already has order please inactive it`)
     }
     await itemRepository.delete({ id });
   };
