@@ -17,7 +17,7 @@ export class Order extends ModelEntity {
   item_id: number;
 
   @Column({ nullable: true })
-  treatment_progress: number;
+  total_treatment: number;
 
   @Column({ nullable: true, type: 'numeric', precision: 10, scale: 2, default: 0 })
   price: number;

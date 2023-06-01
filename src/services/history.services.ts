@@ -4,6 +4,8 @@ import { Order } from 'orm/entities/models/order';
 
 import { getRepository } from 'typeorm';
 import { OrderService } from './order.services';
+import { ConfigurationServices } from './configuration.services';
+import { REWARD_APPRERANCE_POINT } from 'share/configurations/constant';
 
 export class HistoryService {
   private static instance: HistoryService;
@@ -16,15 +18,34 @@ export class HistoryService {
     return HistoryService.instance;
   }
 
-  createHistory = async (order_id: number, treatment_progress: number, pay_date: Date, price: number) => {
+  createHistory = async (order_id: number, pay_date: Date, price: number) => {
     const historyRepository = getRepository(History);
+
+    const historyCount = await historyRepository.count({ where: { order_id } });
 
     const newHistory = new History();
     newHistory.order_id = order_id;
-    newHistory.treatment_progress = treatment_progress;
+    newHistory.treatment_progress = historyCount + 1;
     newHistory.pay_date = pay_date;
     newHistory.price = price;
     await historyRepository.save(newHistory);
+
+    //get customer from order id
+    const orderRepository = getRepository(Order);
+    const order = await orderRepository.findOne({ where: { id: order_id } });
+    if (!order) {
+      throw new Error('Order not found');
+    }
+    const customerRepository = getRepository(Customer);
+    const customer = await customerRepository.findOne({ where: { id: order.client_id } });
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+
+    const reward_apprerance_point = await ConfigurationServices.getInstance().getConfigValue(REWARD_APPRERANCE_POINT);
+    //update reward point
+    customer.reward_point += +reward_apprerance_point;
+    await customerRepository.save(customer);
 
     //update order
     await OrderService.getInstance().updateOrder(order_id, price);
