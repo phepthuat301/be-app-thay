@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import {CustomerService} from 'services/customer.services';
+import { CustomerService } from 'services/customer.services';
 export const deleteCustomer = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.body;
-    const data = await CustomerService.getInstance().deleteCustomer(id);
+    const { id } = req.params;
+    const data = await CustomerService.getInstance().deleteCustomer(parseInt(id));
     return res.status(200).send({ message: 'Delete Customer Sucessfully', success: true, data });
   } catch (err) {
     console.log(err);
