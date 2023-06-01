@@ -3,6 +3,7 @@ import { CUSTOMER_STATUS_ENUM, GENDER } from 'share/enum';
 import { getRepository } from 'typeorm';
 import { ReferralService } from './referral.services';
 import { Order } from 'orm/entities/models/order';
+import { History } from 'orm/entities/models/history';
 
 export interface CustomerPayload {
   name?: string;

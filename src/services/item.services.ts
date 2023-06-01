@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 import { Item } from 'orm/entities/models/item';
 import { ITEM_STATUS_ENUM, PAYMENT_ENUM } from 'share/enum';
-import { getRepository } from 'typeorm';
+import { getRepository, ILike, Like } from 'typeorm';
 
 export interface ItemPayload {
   id: number;
@@ -109,14 +109,24 @@ export class ItemService {
 
   getItemByName = async (keyword: string, page: number, litmit: number) => {
     const itemRepository = getRepository(Item);
+    if (keyword) {
+      const item = await itemRepository.find({
+        where: [
+          { name: ILike(`%${keyword}}%`) },
+          { code: ILike(`%${keyword}}%`) },
+        ],
+        skip: (page - 1) * litmit,
+        take: litmit,
+      });
+      return item;
+    }
     const item = await itemRepository.find({
-      where: { name: keyword },
       skip: (page - 1) * litmit,
       take: litmit,
+      order: {
+        createdAt: 'DESC',
+      },
     });
-    if (!item) {
-      throw new Error('Item not found');
-    }
 
     return item;
   };
