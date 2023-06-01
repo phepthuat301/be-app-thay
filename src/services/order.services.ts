@@ -1,4 +1,5 @@
 import { Customer } from 'orm/entities/models/customer';
+import { Item } from 'orm/entities/models/item';
 import { Order } from 'orm/entities/models/order';
 
 import { getRepository } from 'typeorm';
@@ -14,14 +15,17 @@ export class OrderService {
     return OrderService.instance;
   }
 
-  createOrder = async (client_id: number, item_id: number, treatment_progress: number, price: number, paid: number) => {
+  createOrder = async (client_id: number, item_id: number, paid: number) => {
     const orderRepository = getRepository(Order);
+    const itemRepository = getRepository(Item);
+
+    const item = await itemRepository.findOne({ where: { id: item_id } });
 
     const newOrder = new Order();
     newOrder.client_id = client_id;
-    newOrder.item_id = item_id;
-    newOrder.treatment_progress = treatment_progress;
-    newOrder.price = price;
+    newOrder.item_id = item.id;
+    newOrder.total_treatment = item.number_of_treatments;
+    newOrder.price = item.price;
     newOrder.paid = paid;
     await orderRepository.save(newOrder);
     return newOrder;
@@ -34,7 +38,6 @@ export class OrderService {
       throw new Error('Order not found');
     }
     order.paid = paid;
-    order.treatment_progress = order.treatment_progress + 1;
     await orderRepository.save(order);
     return order;
   };

@@ -2,6 +2,7 @@ import { Customer } from 'orm/entities/models/customer';
 import { CUSTOMER_STATUS_ENUM, GENDER } from 'share/enum';
 import { getRepository } from 'typeorm';
 import { ReferralService } from './referral.services';
+import { Order } from 'orm/entities/models/order';
 
 export interface CustomerPayload {
   name?: string;
@@ -64,7 +65,6 @@ export class CustomerService {
     if (!customerToUpdate) {
       throw new Error('Customer not found');
     }
-    console.log(customer.reward_point);
     customerToUpdate.name = customer.name;
     customerToUpdate.date_of_birth = customer.date_of_birth;
     customerToUpdate.address = customer.address;
@@ -103,8 +103,9 @@ export class CustomerService {
 
   getCustomerByName = async (keyword: string, page: number, limit: number) => {
     const customerRepository = getRepository(Customer);
-    //where column name like %keyword%
-    //add status = ACTIVE
+    const orderRepository = getRepository(Order);
+    const historyRepository = getRepository(History);
+
     const customerList = await customerRepository
       .createQueryBuilder('customer')
       .where('customer.name like :keyword', { keyword: `%${keyword}%` })
@@ -112,6 +113,23 @@ export class CustomerService {
       .skip((page - 1) * limit)
       .take(limit)
       .getMany();
-    return customerList;
+
+    const result = await Promise.all(
+      customerList.map(async (customer) => {
+        const orders = await orderRepository.find({ where: { client_id: customer.id } });
+
+        const orderList = await Promise.all(
+          orders.map(async (order) => {
+            const progress = await historyRepository.count({ where: { order_id: order.id } });
+            const orderElement = { ...order, progress: progress };
+            return orderElement;
+          }),
+        );
+
+        return { ...customer, orders: orderList };
+      }),
+    );
+
+    return result;
   };
 }
