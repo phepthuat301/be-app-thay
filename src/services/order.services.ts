@@ -1,6 +1,7 @@
 import { Customer } from 'orm/entities/models/customer';
 import { Item } from 'orm/entities/models/item';
 import { Order } from 'orm/entities/models/order';
+import { PAYMENT_ENUM } from 'share/enum';
 
 import { getRepository } from 'typeorm';
 
@@ -18,9 +19,19 @@ export class OrderService {
   createOrder = async (client_id: number, item_id: number, paid: number) => {
     const orderRepository = getRepository(Order);
     const itemRepository = getRepository(Item);
+    const customerRepository = getRepository(Customer);
+    const [item, customer] = await Promise.all([
+      itemRepository.findOne({ where: { id: item_id } }),
+      customerRepository.findOne({ where: { id: client_id } }),
+    ]);
 
-    const item = await itemRepository.findOne({ where: { id: item_id } });
-
+    if (!item) throw new Error(`Not found service`);
+    if (!customer) throw new Error(`Not found customer`);
+    if (item.payment === PAYMENT_ENUM.POINT) {
+      if (customer.reward_point < item.reward_point) throw new Error(`You dont have enough points to buy this service`);
+      customer.reward_point -= item.reward_point;
+      await customerRepository.save(customer);
+    }
     const newOrder = new Order();
     newOrder.client_id = client_id;
     newOrder.item_id = item.id;

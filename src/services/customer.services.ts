@@ -1,6 +1,6 @@
 import { Customer } from 'orm/entities/models/customer';
 import { CUSTOMER_STATUS_ENUM, GENDER } from 'share/enum';
-import { getRepository } from 'typeorm';
+import { getConnection, getRepository } from 'typeorm';
 import { ReferralService } from './referral.services';
 import { Order } from 'orm/entities/models/order';
 import { History } from 'orm/entities/models/history';
@@ -21,7 +21,7 @@ export const PREFIX_REFERRAL_CODE = 'THIENHIEU';
 
 export class CustomerService {
   private static instance: CustomerService;
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): CustomerService {
     if (!CustomerService.instance) {
@@ -66,6 +66,7 @@ export class CustomerService {
     if (!customerToUpdate) {
       throw new Error('Customer not found');
     }
+
     customerToUpdate.name = customer.name;
     customerToUpdate.date_of_birth = customer.date_of_birth;
     customerToUpdate.address = customer.address;
@@ -107,30 +108,66 @@ export class CustomerService {
     const orderRepository = getRepository(Order);
     const historyRepository = getRepository(History);
 
-    const customerList = await customerRepository
-      .createQueryBuilder('customer')
-      .where('customer.name like :keyword', { keyword: `%${keyword}%` })
-      .andWhere('customer.status = :status', { status: CUSTOMER_STATUS_ENUM.ACTIVE })
-      .skip((page - 1) * limit)
-      .take(limit)
-      .getMany();
+    // const customerList = await customerRepository
+    //   .createQueryBuilder('customer')
+    //   .where('customer.name like :keyword', { keyword: `%${keyword}%` })
+    //   .andWhere('customer.status = :status', { status: CUSTOMER_STATUS_ENUM.ACTIVE })
+    //   .skip((page - 1) * limit)
+    //   .take(limit)
+    //   .getMany();
 
-    const result = await Promise.all(
-      customerList.map(async (customer) => {
-        const orders = await orderRepository.find({ where: { client_id: customer.id } });
+    // const result = await Promise.all(
+    //   customerList.map(async (customer) => {
+    //     const orders = await orderRepository.find({ where: { client_id: customer.id } });
 
-        const orderList = await Promise.all(
-          orders.map(async (order) => {
-            const progress = await historyRepository.count({ where: { order_id: order.id } });
-            const orderElement = { ...order, progress: progress };
-            return orderElement;
-          }),
-        );
+    //     const orderList = await Promise.all(
+    //       orders.map(async (order) => {
+    //         const progress = await historyRepository.count({ where: { order_id: order.id } });
+    //         const orderElement = { ...order, progress: progress };
+    //         return orderElement;
+    //       }),
+    //     );
 
-        return { ...customer, orders: orderList };
-      }),
-    );
+    //     return { ...customer, orders: orderList };
+    //   }),
+    // );
+    let conditionQuery = '';
+    const queryParams = [];
 
+    if (keyword) {
+      conditionQuery = 'WHERE customer.name ILIKE $1';
+      queryParams.push(`%${keyword}%`);
+    }
+
+    const query = `
+      SELECT 
+        customer.*,
+        JSON_AGG(
+          JSON_BUILD_OBJECT(
+            'id', "orders".id,
+            'createdAt', "orders"."created_at",
+            'updatedAt', "orders"."updated_at",
+            'item_code', item.code,
+            'item_name', item.name,
+            'total_treatment', "orders".total_treatment,
+            'treatment_progress', COALESCE(history.treatment_progress, 0)
+          )
+        ) AS orders
+      FROM
+        customer
+      LEFT JOIN "orders" ON customer.id = "orders".client_id
+      LEFT JOIN item ON "orders".item_id = item.id
+      LEFT JOIN history ON "orders".id = history.order_id
+      ${conditionQuery}
+      GROUP BY
+        customer.id
+      ORDER BY
+        customer.id
+      OFFSET $${queryParams.length + 1} ROWS
+      LIMIT $${queryParams.length + 2};
+    `;
+    queryParams.push((page - 1) * limit, limit);
+    const result = await getConnection().query(query, queryParams);
     return result;
   };
 }

@@ -52,7 +52,7 @@ export class CreateUsers1590521920166 implements MigrationInterface {
     );
 
     await queryRunner.query(
-      ` CREATE TABLE IF NOT EXISTS "order" (
+      ` CREATE TABLE IF NOT EXISTS "orders" (
         "id" SERIAL PRIMARY KEY,
         "client_id" integer,
         "item_id" integer,
