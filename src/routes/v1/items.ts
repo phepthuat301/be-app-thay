@@ -7,7 +7,7 @@ const router = Router();
 
 router.post('/create', [checkJwt], create);
 router.post('/edit', [checkJwt], edit);
-router.delete('/delete', [checkJwt], deleteItem);
+router.delete('/delete/:id', [checkJwt], deleteItem);
 router.post('/get-by-name', [checkJwt], getItemByName);
 router.get('/get', [checkJwt], getItemList);
 

@@ -13,9 +13,7 @@ export class History extends ModelEntity {
   @Column({ nullable: true })
   treatment_progress: number;
 
-  @Column({
-    nullable: true,
-  })
+  @Column({ nullable: true })
   pay_date: Date;
 
   @Column({ nullable: true, type: 'numeric', precision: 10, scale: 2, default: 0 })

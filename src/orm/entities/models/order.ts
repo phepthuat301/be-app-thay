@@ -2,7 +2,7 @@ import { Entity, Column } from 'typeorm';
 
 import { ModelEntity } from './model';
 
-@Entity('order')
+@Entity('orders')
 export class Order extends ModelEntity {
   @Column({
     nullable: true,
