@@ -17,14 +17,19 @@ export class ReferralService {
 
   async submitReferral(referral_code: string, referrer_id: number) {
     const CustomerRepository = getRepository(Customer);
-    const referee = await this.getUserByReferralCode(referral_code);
     const referrer = await CustomerRepository.findOne({
       where: { id: referrer_id, status: CUSTOMER_STATUS_ENUM.ACTIVE },
     });
-    const reward_point = await ConfigurationServices.getInstance().getConfigValue(REWARD_REFERRAL_POINT);
-    if (!referee || !referrer) {
+    if (!referrer) {
       throw new Error('Customer not found');
     }
+    if (referrer.referral_code === referral_code) {
+      throw new Error('Cannot enter yourself referral_code');
+    }
+    const referee = await this.getUserByReferralCode(referral_code);
+
+    const reward_point = await ConfigurationServices.getInstance().getConfigValue(REWARD_REFERRAL_POINT);
+  
     await this.createReferral(referee.id, referrer_id);
     referee.reward_point += +reward_point;
     await CustomerRepository.save(referee);
@@ -32,7 +37,7 @@ export class ReferralService {
 
   private async getUserByReferralCode(referral_code: string) {
     const CustomerRepository = getRepository(Customer);
-    const customer = await CustomerRepository.findOne({ where: { refferal_code: referral_code } });
+    const customer = await CustomerRepository.findOne({ where: { referral_code: referral_code } });
     if (!customer) {
       throw new Error('Customer not found');
     }
