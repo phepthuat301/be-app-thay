@@ -1,10 +1,13 @@
 import { Customer } from 'orm/entities/models/customer';
+import { History } from 'orm/entities/models/history';
 import { Order } from 'orm/entities/models/order';
+import { LIST_STATISTIC_MONTH, LIST_STATISTIC_YEAR } from 'share/configurations/constant';
 import { getRepository } from 'typeorm';
+import { ConfigurationServices } from './configuration.services';
 
 export class DashboardService {
   private static instance: DashboardService;
-  private constructor() {}
+  private constructor() { }
   public static getInstance(): DashboardService {
     if (!this.instance) {
       this.instance = new DashboardService();
@@ -14,62 +17,12 @@ export class DashboardService {
   }
 
   getStatistics = async (year: number, month: number) => {
-    //get total customer
-    const totalCustomer = await getRepository(Customer).count();
+    const [statisticMonth, statisticYear] = await Promise.all([
+      ConfigurationServices.getInstance().getConfigValue(LIST_STATISTIC_MONTH),
+      ConfigurationServices.getInstance().getConfigValue(LIST_STATISTIC_YEAR),
+    ])
 
-    //get total paid
-    const totalPaid = await getRepository(Order)
-      .createQueryBuilder('order')
-      .select('SUM(order.paid)', 'total_paid')
-      .getRawOne();
-
-    //get total paid per month, input by year
-    const totalPaidPerMonth = await getRepository(Order)
-      .createQueryBuilder('order')
-      .select('SUM(order.paid)', 'total_paid')
-      .addSelect('MONTH(order.created_at)', 'month')
-      .where('YEAR(order.created_at) = :year', { year })
-      .groupBy('month')
-      .getRawMany();
-
-    //get total paid per day, input by month
-
-    const totalPaidPerDay = await getRepository(Order)
-      .createQueryBuilder('order')
-      .select('SUM(order.paid)', 'total_paid')
-      .addSelect('DAY(order.created_at)', 'day')
-      .where('MONTH(order.created_at) = :month', { month })
-      .groupBy('day')
-      .getRawMany();
-
-    //get total order per month, input by year
-    const totalOrderPerMonth = await getRepository(Order)
-      .createQueryBuilder('order')
-      .select('COUNT(order.id)', 'total_order')
-      .addSelect('MONTH(order.created_at)', 'month')
-      .where('YEAR(order.created_at) = :year', { year })
-      .groupBy('month')
-      .getRawMany();
-
-    //get total order per day, input by month
-    const totalOrderPerDay = await getRepository(Order)
-      .createQueryBuilder('order')
-      .select('COUNT(order.id)', 'total_order')
-      .addSelect('DAY(order.created_at)', 'day')
-      .where('MONTH(order.created_at) = :month', { month })
-      .groupBy('day')
-      .getRawMany();
-
-    //get total new customer in month
-    const totalNewCustomerPerMonth = await getRepository(Customer)
-      .createQueryBuilder('customer')
-      .select('COUNT(customer.id)', 'total_customer')
-      .addSelect('MONTH(customer.created_at)', 'month')
-      .where('YEAR(customer.created_at) = :year', { year })
-      .groupBy('month')
-      .getRawMany();
-
-    return {
+    const [
       totalCustomer,
       totalPaid,
       totalPaidPerMonth,
@@ -77,6 +30,83 @@ export class DashboardService {
       totalOrderPerMonth,
       totalOrderPerDay,
       totalNewCustomerPerMonth,
+    ] = await Promise.all([
+      getRepository(Customer).count(), // total user
+      getRepository(History) // total paid
+        .createQueryBuilder('history')
+        .select('SUM(history.price)', 'total_paid')
+        .getRawOne(),
+      getRepository(History)
+        .createQueryBuilder('history')
+        .select('SUM(history.price)', 'total_paid')
+        .addSelect('DATE_PART(\'month\', history.created_at)', 'month')
+        .where('DATE_PART(\'year\', history.created_at) = :year', { year })
+        .groupBy('month')
+        .getRawMany(),
+      getRepository(History)
+        .createQueryBuilder('history')
+        .select('SUM(history.price)', 'total_paid')
+        .addSelect('DATE_PART(\'day\', history.created_at)', 'day')
+        .where('DATE_PART(\'month\', history.created_at) = :month', { month })
+        .groupBy('day')
+        .getRawMany(),
+      getRepository(Order)
+        .createQueryBuilder('order')
+        .select('COUNT(order.id)', 'total_order')
+        .addSelect('EXTRACT(MONTH FROM order.created_at)', 'month')
+        .where('EXTRACT(YEAR FROM order.created_at) = :year', { year })
+        .groupBy('month')
+        .getRawMany(),
+      getRepository(Order)
+        .createQueryBuilder('order')
+        .select('COUNT(order.id)', 'total_order')
+        .addSelect('EXTRACT(DAY FROM order.created_at)', 'day')
+        .where('EXTRACT(MONTH FROM order.created_at) = :month', { month })
+        .groupBy('day')
+        .getRawMany(),
+      getRepository(Customer)
+        .createQueryBuilder('customer')
+        .select('COUNT(customer.id)', 'total_customer')
+        .addSelect('EXTRACT(MONTH FROM customer.created_at)', 'month')
+        .where('EXTRACT(YEAR FROM customer.created_at) = :year', { year })
+        .groupBy('month')
+        .getRawMany()
+    ])
+    return {
+      totalCustomer,
+      totalPaid,
+      totalPaidPerMonth: totalPaidPerMonth.map(item => {
+        return {
+          name: `Tháng ${item.month}`,
+          totalPaid: parseInt(item.total_paid)
+        }
+      }),
+      totalPaidPerDay: totalPaidPerDay.map(item => {
+        return {
+          name: `Ngày ${item.day}`,
+          totalPaid: parseInt(item.total_paid)
+        }
+      }),
+      totalOrderPerMonth: totalOrderPerMonth.map(item => {
+        return {
+          name: `Tháng ${item.month}`,
+          totalOrder: parseInt(item.total_order)
+        }
+      }),
+      totalOrderPerDay: totalOrderPerDay.map(item => {
+        return {
+          name: `Ngày ${item.day}`,
+          totalOrder: parseInt(item.total_order)
+        }
+      }),
+      totalNewCustomerPerMonth: totalNewCustomerPerMonth.map(item => {
+        return {
+          name: `Tháng ${item.month}`,
+          totalCustomer: parseInt(item.total_customer)
+        }
+      }),
+      statisticMonth: statisticMonth.split(','),
+      statisticYear: statisticYear.split(','),
     };
   };
 }
