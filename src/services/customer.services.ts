@@ -148,6 +148,7 @@ export class CustomerService {
         'id', "orders".id,
         'createdAt', "orders"."created_at",
         'updatedAt', "orders"."updated_at",
+        'price', "orders"."price",
         'item_code', item.code,
         'item_name', item.name,
         'total_treatment', "orders".total_treatment,
