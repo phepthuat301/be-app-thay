@@ -88,6 +88,7 @@ export class CustomerService {
     customer.status = CUSTOMER_STATUS_ENUM.DELETED;
     await customerRepository.save(customer);
   };
+
   getCustomer = async (id: number) => {
     const customerRepository = getRepository(Customer);
     const customer = await customerRepository.findOne({ where: { id } });
@@ -131,13 +132,13 @@ export class CustomerService {
     //     return { ...customer, orders: orderList };
     //   }),
     // );
-    let conditionQuery = '';
+    let conditionQuery = `WHERE customer.status = '${CUSTOMER_STATUS_ENUM.ACTIVE}'`;
     const queryParams = [];
-    let countConditionQuery = {}
+    let countConditionQuery: any = { status: CUSTOMER_STATUS_ENUM.ACTIVE }
     if (keyword) {
-      conditionQuery = 'WHERE customer.name ILIKE $1';
+      conditionQuery = `WHERE customer.name ILIKE $1 and customer.status = '${CUSTOMER_STATUS_ENUM.ACTIVE}'`;
       queryParams.push(`%${keyword}%`);
-      countConditionQuery = { name: ILike(`%${keyword}%`) }
+      countConditionQuery = { name: ILike(`%${keyword}%`), status: CUSTOMER_STATUS_ENUM.ACTIVE }
     }
 
     const query = `
@@ -179,10 +180,11 @@ export class CustomerService {
     LIMIT $${queryParams.length + 2};
     `;
     queryParams.push((page - 1) * limit, limit);
-    const [result, totalCustomers] = await Promise.all([
+    const [result, totalActiveCustomers, totalCustomers] = await Promise.all([
       getConnection().query(query, queryParams),
       getRepository(Customer).count({ where: countConditionQuery }),
+      getRepository(Customer).count(),
     ])
-    return { result, totalCustomers };
+    return { result, totalActiveCustomers, totalCustomers };
   };
 }

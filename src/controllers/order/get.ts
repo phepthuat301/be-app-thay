@@ -6,7 +6,7 @@ export const getOrderByName = async (req: Request, res: Response, next: NextFunc
     const { keyword } = req.body;
     let page = req.body.page ? parseInt(req.body.page as string) : 1;
     let limit = req.body.limit ? parseInt(req.body.limit as string) : 10;
-    const data = await OrderService.getInstance().getOderByName(keyword, page, limit);
+    const data = await OrderService.getInstance().getOrderByName(keyword, page, limit);
     return res.status(200).send({ message: 'Get Order Sucessfully', success: true, data });
   } catch (err) {
     console.log(err);

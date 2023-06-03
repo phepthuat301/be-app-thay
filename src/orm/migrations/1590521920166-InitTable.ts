@@ -24,7 +24,7 @@ export class CreateUsers1590521920166 implements MigrationInterface {
         "name" character varying(255) NOT NULL,
         "date_of_birth" date,
         "address" character varying(255),
-        "phone" character varying(255) NOT NULL,
+        "phone" character varying(255) NOT NULL UNIQUE,
         "gender" character varying,
         "note" character varying,
         "status" character varying,
