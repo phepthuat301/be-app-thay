@@ -66,15 +66,15 @@ export class CustomerService {
     if (!customerToUpdate) {
       throw new Error('Customer not found');
     }
+    if (customer.name) customerToUpdate.name = customer.name;
 
-    customerToUpdate.name = customer.name;
-    customerToUpdate.date_of_birth = customer.date_of_birth;
-    customerToUpdate.address = customer.address;
-    customerToUpdate.phone = customer.phone;
-    customerToUpdate.gender = customer.gender;
-    customerToUpdate.note = customer.note;
-    customerToUpdate.pathological = customer.pathological;
-    customerToUpdate.reward_point = customer.reward_point;
+    if (customer.date_of_birth) customerToUpdate.date_of_birth = customer.date_of_birth;
+    if (customer.address) customerToUpdate.address = customer.address;
+    if (customer.phone) customerToUpdate.phone = customer.phone;
+    if (customer.gender) customerToUpdate.gender = customer.gender;
+    if (customer.note) customerToUpdate.note = customer.note;
+    if (customer.pathological) customerToUpdate.pathological = customer.pathological;
+    if (customer.reward_point) customerToUpdate.reward_point = customer.reward_point;
     await customerRepository.save(customerToUpdate);
     return customerToUpdate;
   };
