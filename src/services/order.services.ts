@@ -37,7 +37,6 @@ export class OrderService {
     newOrder.item_id = item.id;
     newOrder.total_treatment = item.number_of_treatments;
     newOrder.price = item.price;
-    newOrder.paid = paid;
     await orderRepository.save(newOrder);
     return newOrder;
   };
@@ -48,7 +47,6 @@ export class OrderService {
     if (!order) {
       throw new Error('Order not found');
     }
-    order.paid = paid;
     await orderRepository.save(order);
     return order;
   };

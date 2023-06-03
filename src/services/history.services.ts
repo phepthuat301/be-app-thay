@@ -18,7 +18,7 @@ export class HistoryService {
     return HistoryService.instance;
   }
 
-  createHistory = async (order_id: number, pay_date: Date, price: number) => {
+  createHistory = async (order_id: number, price: number) => {
     const historyRepository = getRepository(History);
 
     const historyCount = await historyRepository.count({ where: { order_id } });
@@ -26,7 +26,7 @@ export class HistoryService {
     const newHistory = new History();
     newHistory.order_id = order_id;
     newHistory.treatment_progress = historyCount + 1;
-    newHistory.pay_date = pay_date;
+    newHistory.pay_date = new Date();
     newHistory.price = price;
     await historyRepository.save(newHistory);
 
@@ -46,9 +46,6 @@ export class HistoryService {
     //update reward point
     customer.reward_point += +reward_apprerance_point;
     await customerRepository.save(customer);
-
-    //update order
-    await OrderService.getInstance().updateOrder(order_id, price);
 
     return newHistory;
   };

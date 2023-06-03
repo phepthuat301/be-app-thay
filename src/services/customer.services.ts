@@ -1,6 +1,6 @@
 import { Customer } from 'orm/entities/models/customer';
 import { CUSTOMER_STATUS_ENUM, GENDER } from 'share/enum';
-import { getConnection, getRepository } from 'typeorm';
+import { getConnection, getRepository, ILike, Like } from 'typeorm';
 import { ReferralService } from './referral.services';
 import { Order } from 'orm/entities/models/order';
 import { History } from 'orm/entities/models/history';
@@ -133,41 +133,55 @@ export class CustomerService {
     // );
     let conditionQuery = '';
     const queryParams = [];
-
+    let countConditionQuery = {}
     if (keyword) {
       conditionQuery = 'WHERE customer.name ILIKE $1';
       queryParams.push(`%${keyword}%`);
+      countConditionQuery = { name: ILike(`%${keyword}%`) }
     }
 
     const query = `
-      SELECT 
-        customer.*,
-        JSON_AGG(
-          JSON_BUILD_OBJECT(
-            'id', "orders".id,
-            'createdAt', "orders"."created_at",
-            'updatedAt', "orders"."updated_at",
-            'item_code', item.code,
-            'item_name', item.name,
-            'total_treatment', "orders".total_treatment,
-            'treatment_progress', COALESCE(history.treatment_progress, 0)
-          )
-        ) AS orders
-      FROM
-        customer
-      LEFT JOIN "orders" ON customer.id = "orders".client_id
-      LEFT JOIN item ON "orders".item_id = item.id
-      LEFT JOIN history ON "orders".id = history.order_id
-      ${conditionQuery}
-      GROUP BY
-        customer.id
-      ORDER BY
-        customer.id
-      OFFSET $${queryParams.length + 1} ROWS
-      LIMIT $${queryParams.length + 2};
+    SELECT 
+    customer.*,
+    JSON_AGG(
+      JSON_BUILD_OBJECT(
+        'id', "orders".id,
+        'createdAt', "orders"."created_at",
+        'updatedAt', "orders"."updated_at",
+        'item_code', item.code,
+        'item_name', item.name,
+        'total_treatment', "orders".total_treatment,
+        'treatment_progress', COALESCE(max_progress_history.max_progress, 0),
+        'paid', COALESCE(paid_history.paid, 0)
+      )
+    ) AS orders
+    FROM
+      customer
+    LEFT JOIN "orders" ON customer.id = "orders".client_id
+    LEFT JOIN item ON "orders".item_id = item.id
+    LEFT JOIN (
+      SELECT order_id, MAX(treatment_progress) AS max_progress
+      FROM history
+      GROUP BY order_id
+    ) AS max_progress_history ON "orders".id = max_progress_history.order_id
+    LEFT JOIN (
+      SELECT order_id, SUM(price) AS paid
+      FROM history
+      GROUP BY order_id
+    ) AS paid_history ON "orders".id = paid_history.order_id
+    ${conditionQuery}
+    GROUP BY
+      customer.id
+    ORDER BY
+      customer.created_at DESC
+    OFFSET $${queryParams.length + 1} ROWS
+    LIMIT $${queryParams.length + 2};
     `;
     queryParams.push((page - 1) * limit, limit);
-    const result = await getConnection().query(query, queryParams);
-    return result;
+    const [result, totalCustomers] = await Promise.all([
+      getConnection().query(query, queryParams),
+      getRepository(Customer).count({ where: countConditionQuery }),
+    ])
+    return { result, totalCustomers };
   };
 }

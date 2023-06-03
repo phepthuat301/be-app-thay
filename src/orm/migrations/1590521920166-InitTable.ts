@@ -58,7 +58,6 @@ export class CreateUsers1590521920166 implements MigrationInterface {
         "item_id" integer,
         "total_treatment" integer,
         "price" numeric(10,2) DEFAULT 0,
-        "paid" numeric(10,2) DEFAULT 0,
         "created_at" TIMESTAMP NOT NULL DEFAULT now(),
         "updated_at" TIMESTAMP NOT NULL DEFAULT now()
     )`,
