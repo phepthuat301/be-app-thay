@@ -42,6 +42,37 @@ export class OrderService {
     return newOrder;
   };
 
+  refundById = async (order_id: number, amount) => {
+    const orderRepository = getRepository(Order);
+    const order = await orderRepository.findOne({ where: { id: order_id } });
+    if (!order) {
+      throw new Error('Order not found');
+    }
+    const itemRepository = getRepository(Item);
+    const item = await itemRepository.findOne({ where: { id: order.item_id } });
+    if (!item) {
+      throw new Error('Item not found');
+    }
+    const customerRepository = getRepository(Customer);
+    const customer = await customerRepository.findOne({ where: { id: order.client_id } });
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+    if (item.payment === PAYMENT_ENUM.POINT) {
+      customer.reward_point += amount;
+      order.paid -= amount;
+      await customerRepository.save(customer);
+    }
+    if (item.payment === PAYMENT_ENUM.MONEY) {
+      order.paid -= amount;
+      await customerRepository.save(customer);
+    }
+    await orderRepository.save(order);
+    return order;
+
+  };
+
+
   updateOrder = async (order_id: number, paid: number) => {
     const orderRepository = getRepository(Order);
     const order = await orderRepository.findOne({ where: { id: order_id } });
