@@ -115,7 +115,7 @@ export class ItemService {
     return item;
   };
 
-  getItemByName = async (keyword: string, page: number, litmit: number) => {
+  getItemByName = async (keyword: string, page: number, limit: number) => {
     const itemRepository = getRepository(Item);
     if (keyword) {
       const item = await itemRepository.find({
@@ -123,19 +123,19 @@ export class ItemService {
           { name: ILike(`%${keyword}}%`) },
           { code: ILike(`%${keyword}}%`) },
         ],
-        skip: (page - 1) * litmit,
-        take: litmit,
+        skip: (page - 1) * limit,
+        take: limit,
       });
       return item;
     }
     const item = await itemRepository.find({
-      skip: (page - 1) * litmit,
-      take: litmit,
+      skip: (page - 1) * limit,
+      take: limit,
       order: {
         createdAt: 'DESC',
       },
     });
-
-    return item;
+    const totalItems = await itemRepository.count()
+    return { item, totalItems };
   };
 }

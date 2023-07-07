@@ -4,7 +4,6 @@ import { ItemService } from 'services/item.services';
 export const deleteItem = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-
     const data = await ItemService.getInstance().deleteItem(parseInt(id));
     return res.status(200).send({ message: 'Delete Item Sucessfully', success: true, data });
   } catch (err) {
