@@ -34,7 +34,7 @@ export class CustomerService {
   createCustomer = async (customer: CustomerPayload, referral_code: string) => {
     const customerRepository = getRepository(Customer);
 
-    const oldCustomer = await customerRepository.findOne({ where: { phone: customer.phone } });
+    const oldCustomer = await customerRepository.findOne({ where: { name: customer.name } });
     if (oldCustomer) {
       throw new Error('Customer already exists');
     }
@@ -62,6 +62,7 @@ export class CustomerService {
 
     return newCustomer;
   };
+
   editCustomer = async (customer: CustomerPayload, id: number) => {
     const customerRepository = getRepository(Customer);
     const customerToUpdate = await customerRepository.findOne({ where: { id, status: CUSTOMER_STATUS_ENUM.ACTIVE } });
@@ -108,9 +109,9 @@ export class CustomerService {
   };
 
   getCustomerByName = async (keyword: string, page: number, limit: number) => {
-    const customerRepository = getRepository(Customer);
-    const orderRepository = getRepository(Order);
-    const historyRepository = getRepository(History);
+    // const customerRepository = getRepository(Customer);
+    // const orderRepository = getRepository(Order);
+    // const historyRepository = getRepository(History);
 
     // const customerList = await customerRepository
     //   .createQueryBuilder('customer')
@@ -178,7 +179,7 @@ export class CustomerService {
     GROUP BY
       customer.id
     ORDER BY
-      customer.created_at DESC
+      customer.updated_at DESC
     OFFSET $${queryParams.length + 1} ROWS
     LIMIT $${queryParams.length + 2};
     `;

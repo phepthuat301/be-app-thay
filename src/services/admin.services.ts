@@ -93,7 +93,9 @@ const getAdminInfo = async (id: number) => {
   };
 };
 
-const verifyPagePassword = async (password: string) => {
+const verifyPagePassword = async (password: string, pageName: string) => {
+  if (!pageName) throw new Error('Input not valid');
+
   const adminRepository = getRepository(Admin);
   const user = await adminRepository.findOne({ where: { id: 1, status: ADMIN_STATUS_ENUM.ACTIVE } });
   if (!user) {
@@ -102,10 +104,12 @@ const verifyPagePassword = async (password: string) => {
 
   //get configuration
   const refPass = await ConfigurationServices.getInstance().getConfigValue(PAGE_PASSWORD);
-  if (refPass !== password) {
+  const listPass = JSON.parse(refPass);
+  const verifyPwd = listPass.some(item => item.pageName === pageName && item.password === password)
+  if (!verifyPwd) {
     throw new Error('Incorrect password');
   }
-  return true;
+  return verifyPwd;
 
 }
 

@@ -36,6 +36,9 @@ export class HistoryService {
     if (!order) {
       throw new Error('Order not found');
     }
+    order.updatedAt = new Date();
+    await order.save();
+    
     const customerRepository = getRepository(Customer);
     const customer = await customerRepository.findOne({ where: { id: order.client_id } });
     if (!customer) {

@@ -24,6 +24,6 @@ export const CONFIGURATIONS = [
 
   {
     key: PAGE_PASSWORD,
-    value: "admin@2023",
+    value: `[{ "pageName": "history", "password": "admin@2023" }, { "pageName": "order", "password": "admin@2023" }, { "pageName": "statistic", "password": "admin@2023" }]`,
   }
 ];
