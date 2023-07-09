@@ -28,7 +28,7 @@ export class CreateUsers1590521920166 implements MigrationInterface {
         "gender" character varying,
         "note" character varying,
         "status" character varying,
-        "refferal_code" character varying NOT NULL,
+        "referral_code" character varying NOT NULL,
         "pathological" character varying,
         "reward_point" integer DEFAULT 0,
         "created_at" TIMESTAMP NOT NULL DEFAULT now(),
@@ -58,6 +58,7 @@ export class CreateUsers1590521920166 implements MigrationInterface {
         "item_id" integer,
         "total_treatment" integer,
         "price" numeric(10,2) DEFAULT 0,
+        "refund_amount" numeric(10,2) DEFAULT 0,
         "created_at" TIMESTAMP NOT NULL DEFAULT now(),
         "updated_at" TIMESTAMP NOT NULL DEFAULT now()
     )`,

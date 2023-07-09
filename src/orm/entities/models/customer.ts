@@ -44,7 +44,7 @@ export class Customer extends ModelEntity {
   @Column({
     nullable: true,
   })
-  refferal_code: string;
+  referral_code: string;
 
   @Column({
     nullable: true,

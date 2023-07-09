@@ -2,6 +2,7 @@ export const REWARD_APPRERANCE_POINT = 'reward.appearance.point';
 export const REWARD_REFERRAL_POINT = 'reward.referral.point';
 export const LIST_STATISTIC_YEAR = 'list.statistic.year';
 export const LIST_STATISTIC_MONTH = 'list.statistic.point';
+export const PAGE_PASSWORD = 'page.password';
 
 export const CONFIGURATIONS = [
   {
@@ -20,4 +21,9 @@ export const CONFIGURATIONS = [
     key: LIST_STATISTIC_MONTH,
     value: "1,2,3,4,5,6,7,8,9,10,11,12",
   },
+
+  {
+    key: PAGE_PASSWORD,
+    value: "admin@2023",
+  }
 ];

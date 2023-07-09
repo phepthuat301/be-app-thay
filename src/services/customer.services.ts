@@ -12,7 +12,7 @@ export interface CustomerPayload {
   phone?: string;
   gender?: GENDER;
   note?: string;
-  refferal_code?: string;
+  referral_code?: string;
   pathological?: string;
   reward_point?: number;
 }
@@ -21,7 +21,7 @@ export const PREFIX_REFERRAL_CODE = 'THIENHIEU';
 
 export class CustomerService {
   private static instance: CustomerService;
-  private constructor() { }
+  private constructor() {}
 
   public static getInstance(): CustomerService {
     if (!CustomerService.instance) {
@@ -31,7 +31,7 @@ export class CustomerService {
     return CustomerService.instance;
   }
 
-  createCustomer = async (customer: CustomerPayload, refferal_code: string) => {
+  createCustomer = async (customer: CustomerPayload, referral_code: string) => {
     const customerRepository = getRepository(Customer);
 
     const oldCustomer = await customerRepository.findOne({ where: { phone: customer.phone } });
@@ -47,14 +47,17 @@ export class CustomerService {
     newCustomer.phone = customer.phone;
     newCustomer.gender = customer.gender as GENDER;
     newCustomer.note = customer.note;
-    newCustomer.refferal_code = `${PREFIX_REFERRAL_CODE}-${count + 1}`;
+    newCustomer.referral_code = `${PREFIX_REFERRAL_CODE}-${count + 1}`;
     newCustomer.pathological = customer.pathological;
     newCustomer.reward_point = 0;
     newCustomer.status = CUSTOMER_STATUS_ENUM.ACTIVE;
+    if (referral_code === `${PREFIX_REFERRAL_CODE}-${count + 1}`) {
+      throw new Error('Cannot input yourself referral code');
+    }
     await customerRepository.save(newCustomer);
 
-    if (refferal_code) {
-      await ReferralService.getInstance().submitReferral(refferal_code, newCustomer.id);
+    if (referral_code) {
+      await ReferralService.getInstance().submitReferral(referral_code, newCustomer.id);
     }
 
     return newCustomer;

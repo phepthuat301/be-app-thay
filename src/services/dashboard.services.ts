@@ -32,24 +32,50 @@ export class DashboardService {
       totalNewCustomerPerMonth,
     ] = await Promise.all([
       getRepository(Customer).count(), // total user
+
+      //minus refund
       getRepository(History) // total paid
         .createQueryBuilder('history')
-        .select('SUM(history.price)', 'total_paid')
+        .innerJoin('history.order_id', 'order')
+        .select('SUM(history.price) - SUM(order.refund_amount', 'total_paid_minus_refund')
         .getRawOne(),
+
+      // getRepository(History)
+      //   .createQueryBuilder('history')
+      //   .select('SUM(history.price)', 'total_paid')
+      //   .addSelect('DATE_PART(\'month\', history.created_at)', 'month')
+      //   .where('DATE_PART(\'year\', history.created_at) = :year', { year })
+      //   .groupBy('month')
+      //   .getRawMany(),
+
+      //minus refund
       getRepository(History)
         .createQueryBuilder('history')
-        .select('SUM(history.price)', 'total_paid')
+        .innerJoin('history.order_id', 'order')
+        .select('SUM(history.price) - SUM(order.refund_amount', 'total_paid_minus_refund')
         .addSelect('DATE_PART(\'month\', history.created_at)', 'month')
         .where('DATE_PART(\'year\', history.created_at) = :year', { year })
         .groupBy('month')
         .getRawMany(),
+
+      // getRepository(History)
+      //   .createQueryBuilder('history')
+      //   .select('SUM(history.price)', 'total_paid')
+      //   .addSelect('DATE_PART(\'day\', history.created_at)', 'day')
+      //   .where('DATE_PART(\'month\', history.created_at) = :month', { month })
+      //   .groupBy('day')
+      //   .getRawMany(),
+
+      //minus refund
       getRepository(History)
         .createQueryBuilder('history')
-        .select('SUM(history.price)', 'total_paid')
+        .innerJoin('history.order_id', 'order')
+        .select('SUM(history.price) - SUM(order.refund_amount', 'total_paid_minus_refund')
         .addSelect('DATE_PART(\'day\', history.created_at)', 'day')
         .where('DATE_PART(\'month\', history.created_at) = :month', { month })
         .groupBy('day')
         .getRawMany(),
+
       getRepository(Order)
         .createQueryBuilder('order')
         .select('COUNT(order.id)', 'total_order')
@@ -70,7 +96,8 @@ export class DashboardService {
         .addSelect('EXTRACT(MONTH FROM customer.created_at)', 'month')
         .where('EXTRACT(YEAR FROM customer.created_at) = :year', { year })
         .groupBy('month')
-        .getRawMany()
+        .getRawMany(),
+      //get total refund
     ])
     return {
       totalCustomer,

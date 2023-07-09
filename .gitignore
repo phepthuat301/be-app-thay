@@ -16,5 +16,5 @@ log/*
 *.log
 
 # keep config folder with env files ONLY for demo purposes
-# config/
-# .env
+config/
+.env

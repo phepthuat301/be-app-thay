@@ -21,4 +21,8 @@ export class Order extends ModelEntity {
 
   @Column({ nullable: true, type: 'numeric', precision: 10, scale: 2, default: 0 })
   price: number;
+
+  @Column({ nullable: true, type: 'numeric', precision: 10, scale: 2, default: 0 })
+  refund_amount: number;
+
 }
