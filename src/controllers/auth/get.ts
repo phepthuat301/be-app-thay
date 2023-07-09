@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { CustomError } from 'utils/response/custom-error/CustomError';
 import AdminService from 'services/admin.services';
 
-export const getAdminInfo = async (req: Request, res: Response, next: NextFunction) => {
+export const getAdminInfo = async (req: Request, res: Response) => {
   try {
     const { id } = req.jwtPayload;
     const data = await AdminService.getAdminInfo(id);

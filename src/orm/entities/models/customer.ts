@@ -6,12 +6,14 @@ import { CUSTOMER_STATUS_ENUM, GENDER } from 'share/enum';
 @Entity('customer')
 export class Customer extends ModelEntity {
   @Column({
-    nullable: true,
+    nullable: false,
     length: 255,
   })
   name: string;
 
-  @Column({})
+  @Column({
+    nullable: true
+  })
   date_of_birth: Date;
 
   @Column({
@@ -44,7 +46,9 @@ export class Customer extends ModelEntity {
   })
   refferal_code: string;
 
-  @Column({})
+  @Column({
+    nullable: true,
+  })
   pathological: string;
 
   @Column({
