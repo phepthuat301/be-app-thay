@@ -38,7 +38,7 @@ export class HistoryService {
     }
     order.updatedAt = new Date();
     await order.save();
-    
+
     const customerRepository = getRepository(Customer);
     const customer = await customerRepository.findOne({ where: { id: order.client_id } });
     if (!customer) {
@@ -145,6 +145,38 @@ export class HistoryService {
         .limit(limit)
         .getRawMany(),
       historyRepo.count()
+    ])
+    return { history, totalHistories };
+  };
+
+  getHistoryByUser = async (page: number, limit: number, userId: number) => {
+    const historyRepo = getRepository(History);
+    const [history, totalHistories] = await Promise.all([
+      historyRepo
+        .createQueryBuilder('history')
+        .leftJoin('orders', 'orders', 'history.order_id = orders.id')
+        .leftJoin('customer', 'customer', 'orders.client_id = customer.id')
+        .leftJoin('item', 'item', 'orders.item_id = item.id')
+        .select([
+          'history.created_at',
+          'customer.name',
+          'item.name',
+          'history.treatment_progress',
+          'orders.total_treatment',
+          'history.price'
+        ])
+        .where('customer.id = :userId', { userId })
+        .orderBy('history.created_at', 'DESC')
+        .offset((page - 1) * limit)
+        .limit(limit)
+        .getRawMany(),
+      historyRepo
+        .createQueryBuilder('history')
+        .leftJoin('orders', 'orders', 'history.order_id = orders.id')
+        .leftJoin('customer', 'customer', 'orders.client_id = customer.id')
+        .where('customer.id = :userId', { userId })
+        .getCount()
+
     ])
     return { history, totalHistories };
   };
