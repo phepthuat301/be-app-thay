@@ -109,33 +109,6 @@ export class CustomerService {
   };
 
   getCustomerByName = async (keyword: string, page: number, limit: number) => {
-    // const customerRepository = getRepository(Customer);
-    // const orderRepository = getRepository(Order);
-    // const historyRepository = getRepository(History);
-
-    // const customerList = await customerRepository
-    //   .createQueryBuilder('customer')
-    //   .where('customer.name like :keyword', { keyword: `%${keyword}%` })
-    //   .andWhere('customer.status = :status', { status: CUSTOMER_STATUS_ENUM.ACTIVE })
-    //   .skip((page - 1) * limit)
-    //   .take(limit)
-    //   .getMany();
-
-    // const result = await Promise.all(
-    //   customerList.map(async (customer) => {
-    //     const orders = await orderRepository.find({ where: { client_id: customer.id } });
-
-    //     const orderList = await Promise.all(
-    //       orders.map(async (order) => {
-    //         const progress = await historyRepository.count({ where: { order_id: order.id } });
-    //         const orderElement = { ...order, progress: progress };
-    //         return orderElement;
-    //       }),
-    //     );
-
-    //     return { ...customer, orders: orderList };
-    //   }),
-    // );
     let conditionQuery = `WHERE customer.status = '${CUSTOMER_STATUS_ENUM.ACTIVE}'`;
     const queryParams = [];
     let countConditionQuery: any = { status: CUSTOMER_STATUS_ENUM.ACTIVE }

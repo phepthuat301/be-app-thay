@@ -1,9 +1,10 @@
 import { Customer } from 'orm/entities/models/customer';
+import { History } from 'orm/entities/models/history';
 import { Item } from 'orm/entities/models/item';
 import { Order } from 'orm/entities/models/order';
 import { PAYMENT_ENUM } from 'share/enum';
 
-import { getRepository } from 'typeorm';
+import { getRepository, In } from 'typeorm';
 
 export class OrderService {
   private static instance: OrderService;
@@ -152,5 +153,62 @@ export class OrderService {
       orderRepo.count()
     ])
     return { order, totalOrders };
+  }
+
+  getOrderByUserId = async (id: number) => {
+    const orderRepository = getRepository(Order);
+    const historyRepository = getRepository(History);
+
+    try {
+      const orders = await orderRepository
+        .createQueryBuilder('order')
+        .leftJoin('item', 'item', 'order.item_id = item.id')
+        .leftJoin(
+          (subQuery) =>
+            subQuery
+              .select('order_id')
+              .addSelect('SUM(price)', 'paid')
+              .from('history', 'history')
+              .groupBy('order_id'),
+          'paid_history',
+          '"order".id = paid_history.order_id'
+        )
+        .select([
+          'order.id',
+          'order.created_at',
+          'order.updated_at',
+          'item.name',
+          'item.code',
+          'order.price',
+          'order.total_treatment',
+          'item.id',
+          'paid_history.paid'
+        ])
+        .where('order.client_id = :clientId', { clientId: id })
+        .getRawMany();
+
+      const itemIds = orders.map((order) => order.order_id);
+
+      const histories = await historyRepository.find({ where: { order_id: In(itemIds) } })
+
+      const orderWithHistory = orders.map((order) => {
+        return {
+          id: order.order_id,
+          createdAt: order.created_at,
+          updatedAt: order.updated_at,
+          price: order.order_price,
+          item_code: order.item_code,
+          item_name: order.item_name,
+          total_treatment: order.order_total_treatment,
+          history: histories.filter((history) => history.order_id === order.order_id),
+          paid: order.paid,
+        };
+      });
+
+      return orderWithHistory;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      throw new Error(error);
+    }
   }
 }
