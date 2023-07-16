@@ -2,7 +2,7 @@ import { Customer } from 'orm/entities/models/customer';
 import { History } from 'orm/entities/models/history';
 import { Order } from 'orm/entities/models/order';
 
-import { getRepository, ILike } from 'typeorm';
+import { getRepository, ILike, In } from 'typeorm';
 import { OrderService } from './order.services';
 import { ConfigurationServices } from './configuration.services';
 import { REWARD_APPRERANCE_POINT } from 'share/configurations/constant';
@@ -179,5 +179,12 @@ export class HistoryService {
 
     ])
     return { history, totalHistories };
+  };
+
+  deleteHistories = async (ids: number[]) => {
+    const histories = await getRepository(History).find({ where: { id: In(ids) } })
+    if (histories.length === 0) throw new Error('Not found histories')
+
+    
   };
 }

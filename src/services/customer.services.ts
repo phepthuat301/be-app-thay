@@ -131,7 +131,12 @@ export class CustomerService {
         'item_name', item.name,
         'total_treatment', "orders".total_treatment,
         'treatment_progress', COALESCE(max_progress_history.max_progress, 0),
-        'paid', COALESCE(paid_history.paid, 0)
+        'paid', COALESCE(paid_history.paid, 0),
+        'isDebt', EXISTS (
+          SELECT 1
+          FROM history
+          WHERE history.order_id = "orders".id AND history.price = 0
+        )
       )
     ) AS orders
     FROM
