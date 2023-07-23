@@ -6,21 +6,21 @@ import { ITEM_STATUS_ENUM, PAYMENT_ENUM } from 'share/enum';
 @Entity('item')
 export class Item extends ModelEntity {
   @Column({
-    nullable: true,
+    nullable: false,
     unique: true,
   })
   code: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: false })
   name: string;
 
   @Column({
-    nullable: true,
+    nullable: false,
   })
   status: ITEM_STATUS_ENUM;
 
   @Column({
-    nullable: true,
+    nullable: false,
   })
   payment: PAYMENT_ENUM;
 
@@ -33,7 +33,7 @@ export class Item extends ModelEntity {
   reward_point: number;
 
   @Column({
-    nullable: true,
+    nullable: false,
   })
   number_of_treatments: number;
 }

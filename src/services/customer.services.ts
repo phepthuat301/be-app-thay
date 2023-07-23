@@ -21,7 +21,7 @@ export const PREFIX_REFERRAL_CODE = 'THIENHIEU';
 
 export class CustomerService {
   private static instance: CustomerService;
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): CustomerService {
     if (!CustomerService.instance) {
@@ -131,14 +131,10 @@ export class CustomerService {
         'item_name', item.name,
         'total_treatment', "orders".total_treatment,
         'treatment_progress', COALESCE(max_progress_history.max_progress, 0),
-        'paid', COALESCE(paid_history.paid, 0),
-        'isDebt', EXISTS (
-          SELECT 1
-          FROM history
-          WHERE history.order_id = "orders".id AND history.price = 0
-        )
+        'paid', COALESCE(paid_history.paid, 0)
       )
-    ) AS orders
+    ) AS orders,
+    COALESCE(SUM(paid_history.paid), 0) AS total_paid 
     FROM
       customer
     LEFT JOIN "orders" ON customer.id = "orders".client_id

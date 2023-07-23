@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { OrderService } from 'services/order.services';
 
-export const create = async (req: Request, res: Response, next: NextFunction) => {
+export const create = async (req: Request, res: Response) => {
   try {
     const { client_id, item_id, paid } = req.body;
     const data = await OrderService.getInstance().createOrder(client_id, item_id, paid);
