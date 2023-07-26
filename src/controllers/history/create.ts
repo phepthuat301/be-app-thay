@@ -3,8 +3,8 @@ import { HistoryService } from 'services/history.services';
 
 export const create = async (req: Request, res: Response) => {
   try {
-    const { order_id, price } = req.body;
-    const data = await HistoryService.getInstance().createHistory(order_id, price);
+    const { order_id, price, isVisit } = req.body;
+    const data = await HistoryService.getInstance().createHistory(order_id, price, isVisit);
     return res.status(200).send({ message: 'Create History Sucessfully', success: true, data });
   } catch (err) {
     console.log(err);
