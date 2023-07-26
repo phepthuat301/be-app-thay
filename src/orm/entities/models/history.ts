@@ -18,4 +18,7 @@ export class History extends ModelEntity {
 
   @Column({ nullable: true, type: 'numeric', precision: 10, scale: 2, default: 0 })
   price: number;
+
+  @Column({ nullable: true, type: 'int' })
+  unit_price: number;
 }

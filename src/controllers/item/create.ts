@@ -3,10 +3,11 @@ import { ItemService } from 'services/item.services';
 
 export const create = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, price, reward_point, number_of_treatments, code, payment_method } = req.body;
+    const { name, price, reward_point, number_of_treatments, code, payment_method, unit_price } = req.body;
     const data = await ItemService.getInstance().createItem(
       name,
       price,
+      unit_price,
       reward_point,
       number_of_treatments,
       code,

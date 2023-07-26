@@ -9,6 +9,7 @@ export interface ItemPayload {
   name?: string;
   code?: string;
   price?: number;
+  unit_price?: number;
   reward_point?: number;
   payment_method?: PAYMENT_ENUM;
   number_of_treatments?: number;
@@ -29,6 +30,7 @@ export class ItemService {
   createItem = async (
     name: string,
     price: number,
+    unit_price: number,
     reward_point: number,
     number_of_treatments: number,
     code: string,
@@ -45,9 +47,10 @@ export class ItemService {
     newItem.name = name;
     newItem.status = ITEM_STATUS_ENUM.ACTIVE;
     newItem.code = code;
-    newItem.price = price;
+    newItem.price = price ? price : unit_price * number_of_treatments;
     newItem.payment = payment_method;
     newItem.reward_point = reward_point;
+    newItem.unit_price = unit_price;
     newItem.number_of_treatments = number_of_treatments;
     await itemRepository.save(newItem);
     return newItem;
@@ -72,6 +75,9 @@ export class ItemService {
     }
     if (item.status) {
       updateFields.status = item.status;
+    }
+    if (item.status) {
+      updateFields.unit_price = item.unit_price;
     }
 
     const result = await itemRepository

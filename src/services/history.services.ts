@@ -19,17 +19,6 @@ export class HistoryService {
   }
 
   createHistory = async (order_id: number, price: number) => {
-    const historyRepository = getRepository(History);
-
-    const historyCount = await historyRepository.count({ where: { order_id } });
-
-    const newHistory = new History();
-    newHistory.order_id = order_id;
-    newHistory.treatment_progress = historyCount + 1;
-    newHistory.pay_date = new Date();
-    newHistory.price = price;
-    await historyRepository.save(newHistory);
-
     //get customer from order id
     const orderRepository = getRepository(Order);
     const order = await orderRepository.findOne({ where: { id: order_id } });
@@ -44,6 +33,36 @@ export class HistoryService {
     if (!customer) {
       throw new Error('Customer not found');
     }
+
+    const historyRepository = getRepository(History);
+
+    const queryResult = await historyRepository
+      .createQueryBuilder('history')
+      .select('SUM(history.unit_price)', 'sum')
+      .addSelect('COUNT(*)', 'count')
+      .where('history.order_id = :orderId', { orderId: order.id })
+      .getRawOne();
+
+    const sumOfUnitPrice = parseFloat(queryResult.sum) || 0;
+    const numberOfRecords = parseInt(queryResult.count) || 0;
+    console.log(sumOfUnitPrice, numberOfRecords)
+    const newHistory = new History();
+
+    if (sumOfUnitPrice === order.price) {
+      newHistory.unit_price = 0;
+    } else if (sumOfUnitPrice + order.unit_price >= order.price) {
+      newHistory.unit_price = order.price - sumOfUnitPrice;
+    } else {
+      newHistory.unit_price = order.unit_price;
+    }
+
+    newHistory.order_id = order_id;
+    newHistory.treatment_progress = numberOfRecords + 1;
+    newHistory.pay_date = new Date();
+    newHistory.price = price;
+
+    await historyRepository.save(newHistory);
+
 
     const reward_apprerance_point = await ConfigurationServices.getInstance().getConfigValue(REWARD_APPRERANCE_POINT);
     //update reward point
@@ -185,6 +204,6 @@ export class HistoryService {
     const histories = await getRepository(History).find({ where: { id: In(ids) } })
     if (histories.length === 0) throw new Error('Not found histories')
 
-    
+
   };
 }

@@ -134,7 +134,8 @@ export class CustomerService {
         'paid', COALESCE(paid_history.paid, 0)
       )
     ) AS orders,
-    COALESCE(SUM(paid_history.paid), 0) AS total_paid 
+    COALESCE(SUM(paid_history.paid), 0) AS total_paid,
+    COALESCE(SUM(paid_history.unit_price), 0) AS total_unit_price
     FROM
       customer
     LEFT JOIN "orders" ON customer.id = "orders".client_id
@@ -145,8 +146,8 @@ export class CustomerService {
       GROUP BY order_id
     ) AS max_progress_history ON "orders".id = max_progress_history.order_id
     LEFT JOIN (
-      SELECT order_id, SUM(price) AS paid
-      FROM history
+      SELECT order_id, SUM(price) AS paid, SUM(unit_price) as unit_price
+       FROM history
       GROUP BY order_id
     ) AS paid_history ON "orders".id = paid_history.order_id
     ${conditionQuery}

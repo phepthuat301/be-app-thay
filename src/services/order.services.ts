@@ -38,6 +38,7 @@ export class OrderService {
     newOrder.item_id = item.id;
     newOrder.total_treatment = item.number_of_treatments;
     newOrder.price = item.price;
+    newOrder.unit_price = item.unit_price;
     await orderRepository.save(newOrder);
     return newOrder;
   };
