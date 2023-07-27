@@ -93,13 +93,47 @@ export class CustomerService {
     await customerRepository.save(customer);
   };
 
-  getCustomer = async (id: number) => {
-    const customerRepository = getRepository(Customer);
-    const customer = await customerRepository.findOne({ where: { id } });
+  getCustomerById = async (id: number) => {
+    const query = `
+    SELECT 
+    customer.*,
+    JSON_AGG(
+      JSON_BUILD_OBJECT(
+        'id', "orders".id,
+        'createdAt', "orders"."created_at",
+        'updatedAt', "orders"."updated_at",
+        'price', "orders"."price",
+        'item_code', item.code,
+        'item_name', item.name,
+        'total_treatment', "orders".total_treatment,
+        'treatment_progress', COALESCE(max_progress_history.max_progress, 0),
+        'paid', COALESCE(paid_history.paid, 0)
+      )
+    ) AS orders,
+    COALESCE(SUM(paid_history.paid), 0) AS total_paid,
+    COALESCE(SUM(paid_history.unit_price), 0) AS total_unit_price
+    FROM
+      customer
+    LEFT JOIN "orders" ON customer.id = "orders".client_id
+    LEFT JOIN item ON "orders".item_id = item.id
+    LEFT JOIN (
+      SELECT order_id, MAX(treatment_progress) AS max_progress
+      FROM history
+      GROUP BY order_id
+    ) AS max_progress_history ON "orders".id = max_progress_history.order_id
+    LEFT JOIN (
+      SELECT order_id, SUM(price) AS paid, SUM(unit_price) as unit_price
+       FROM history
+      GROUP BY order_id
+    ) AS paid_history ON "orders".id = paid_history.order_id
+    WHERE customer.id = $1 AND customer.status = '${CUSTOMER_STATUS_ENUM.ACTIVE}'
+    GROUP BY customer.id
+    `;
+    const customer = await getConnection().query(query, [id]);
     if (!customer) {
       throw new Error('Customer not found');
     }
-    return customer;
+    return customer[0];
   };
 
   getCustomerList = async () => {

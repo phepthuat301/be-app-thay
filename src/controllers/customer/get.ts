@@ -1,8 +1,9 @@
-import { Request, Response, NextFunction } from 'express';
-import {CustomerService} from 'services/customer.services';
-export const getCustomerList = async (req: Request, res: Response, next: NextFunction) => {
+import { Request, Response } from 'express';
+import { CustomerService } from 'services/customer.services';
+
+export const getCustomerList = async (req: Request, res: Response) => {
   try {
-    const data = CustomerService.getInstance().getCustomerList();
+    const data = await CustomerService.getInstance().getCustomerList();
     return res.status(200).send({ message: 'Get Customer List Sucessfully', success: true, data });
   } catch (err) {
     console.log(err);
@@ -10,7 +11,7 @@ export const getCustomerList = async (req: Request, res: Response, next: NextFun
   }
 };
 
-export const getCustomerListByName = async (req: Request, res: Response, next: NextFunction) => {
+export const getCustomerListByName = async (req: Request, res: Response) => {
   try {
     const { keyword } = req.body;
 
@@ -19,6 +20,17 @@ export const getCustomerListByName = async (req: Request, res: Response, next: N
 
     const data = await CustomerService.getInstance().getCustomerByName(keyword, page, limit);
     return res.status(200).send({ message: 'Get Customer List By Name Sucessfully', success: true, data });
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send({ message: err.message, success: false, data: {} });
+  }
+};
+
+export const getCustomerById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const data = await CustomerService.getInstance().getCustomerById(parseInt(id));
+    return res.status(200).send({ message: 'Get Customer By Id Sucessfully', success: true, data });
   } catch (err) {
     console.log(err);
     return res.status(400).send({ message: err.message, success: false, data: {} });
