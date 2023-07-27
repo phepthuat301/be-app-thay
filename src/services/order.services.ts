@@ -186,11 +186,13 @@ export class OrderService {
           'paid_history.paid'
         ])
         .where('order.client_id = :clientId', { clientId: id })
+        .orderBy('order.id', 'DESC')
         .getRawMany();
 
       const itemIds = orders.map((order) => order.order_id);
 
       const histories = await historyRepository.find({ where: { order_id: In(itemIds) } })
+      histories.sort((a, b) => a.id - b.id);
 
       const orderWithHistory = orders.map((order) => {
         return {

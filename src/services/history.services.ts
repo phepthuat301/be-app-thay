@@ -18,7 +18,7 @@ export class HistoryService {
     return HistoryService.instance;
   }
 
-  createHistory = async (order_id: number, price: number, isVisit: boolean) => {
+  createHistory = async (order_id: number, price: number, notVisit: boolean) => {
     //get customer from order id
     const orderRepository = getRepository(Order);
     const order = await orderRepository.findOne({ where: { id: order_id } });
@@ -48,7 +48,7 @@ export class HistoryService {
     
     const newHistory = new History();
 
-    if (sumOfUnitPrice === order.price || isVisit) {
+    if (sumOfUnitPrice === order.price || notVisit) {
       newHistory.unit_price = 0;
     } else if (sumOfUnitPrice + order.unit_price >= order.price) {
       newHistory.unit_price = order.price - sumOfUnitPrice;
