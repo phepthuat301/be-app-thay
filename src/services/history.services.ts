@@ -2,7 +2,7 @@ import { Customer } from 'orm/entities/models/customer';
 import { History } from 'orm/entities/models/history';
 import { Order } from 'orm/entities/models/order';
 
-import { getRepository, ILike, In } from 'typeorm';
+import { getRepository, ILike, In, Not } from 'typeorm';
 import { OrderService } from './order.services';
 import { ConfigurationServices } from './configuration.services';
 import { REWARD_APPRERANCE_POINT } from 'share/configurations/constant';
@@ -45,7 +45,7 @@ export class HistoryService {
 
     const sumOfUnitPrice = parseFloat(queryResult.sum) || 0;
     const numberOfRecords = parseInt(queryResult.count) || 0;
-    
+
     const newHistory = new History();
 
     if (sumOfUnitPrice === order.price || notVisit) {
@@ -130,6 +130,7 @@ export class HistoryService {
           ])
           .where('customer.name ILIKE :keyword', { keyword: `%${keyword}%` })
           .orWhere('item.code ILIKE :keyword', { keyword: `%${keyword}%` })
+          .andWhere('history.unit_price <> 0 OR history.price <> 0')
           .orderBy('history.created_at', 'DESC')
           .offset((page - 1) * limit)
           .limit(limit)
@@ -141,6 +142,7 @@ export class HistoryService {
           .leftJoin('item', 'item', 'orders.item_id = item.id')
           .where('customer.name ILIKE :keyword', { keyword: `%${keyword}%` })
           .orWhere('item.code ILIKE :keyword', { keyword: `%${keyword}%` })
+          .andWhere('history.unit_price <> 0 OR history.price <> 0')
           .getCount(),
       ])
       return { history, totalHistories };
@@ -159,16 +161,31 @@ export class HistoryService {
           'orders.total_treatment',
           'history.price'
         ])
+        .andWhere('history.unit_price <> 0 OR history.price <> 0')
         .orderBy('history.created_at', 'DESC')
         .offset((page - 1) * limit)
         .limit(limit)
         .getRawMany(),
-      historyRepo.count()
+      historyRepo
+        .createQueryBuilder('history')
+        .leftJoin('orders', 'orders', 'history.order_id = orders.id')
+        .leftJoin('customer', 'customer', 'orders.client_id = customer.id')
+        .leftJoin('item', 'item', 'orders.item_id = item.id')
+        .select([
+          'history.created_at',
+          'customer.name',
+          'item.name',
+          'history.treatment_progress',
+          'orders.total_treatment',
+          'history.price'
+        ])
+        .andWhere('history.unit_price <> 0 OR history.price <> 0')
+        .getCount(),
     ])
     return { history, totalHistories };
   };
 
-  getHistoryByUser = async (page: number, limit: number, userId: number) => {
+  getHistoryByUser = async (page: number, limit: number, userId: string) => {
     const historyRepo = getRepository(History);
     const [history, totalHistories] = await Promise.all([
       historyRepo
@@ -184,26 +201,27 @@ export class HistoryService {
           'orders.total_treatment',
           'history.price'
         ])
-        .where('customer.id = :userId', { userId })
+        .where('customer.id = :userId', { userId: parseInt(userId) })
+        .andWhere('history.unit_price <> 0 OR history.price <> 0')
         .orderBy('history.created_at', 'DESC')
         .offset((page - 1) * limit)
         .limit(limit)
         .getRawMany(),
-      historyRepo
-        .createQueryBuilder('history')
-        .leftJoin('orders', 'orders', 'history.order_id = orders.id')
-        .leftJoin('customer', 'customer', 'orders.client_id = customer.id')
-        .where('customer.id = :userId', { userId })
-        .getCount()
+      getRepository('history').query(`
+          SELECT COUNT(*) as count
+          FROM history
+          LEFT JOIN orders ON history.order_id = orders.id
+          LEFT JOIN customer ON orders.client_id = customer.id
+          WHERE customer.id = $1
+            AND (history.unit_price <> 0 OR history.price <> 0)
+        `, [userId])
 
     ])
-    return { history, totalHistories };
+    return { history, totalHistories: totalHistories[0].count };
   };
 
   deleteHistories = async (ids: number[]) => {
     const histories = await getRepository(History).find({ where: { id: In(ids) } })
     if (histories.length === 0) throw new Error('Not found histories')
-
-
   };
 }

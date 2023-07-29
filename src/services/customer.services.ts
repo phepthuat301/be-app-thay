@@ -107,6 +107,7 @@ export class CustomerService {
         'item_name', item.name,
         'total_treatment', "orders".total_treatment,
         'treatment_progress', COALESCE(max_progress_history.max_progress, 0),
+        'current_progress', COALESCE(current_progress_history.current_progress, 0),
         'paid', COALESCE(paid_history.paid, 0)
       )
     ) AS orders,
@@ -121,6 +122,12 @@ export class CustomerService {
       FROM history
       GROUP BY order_id
     ) AS max_progress_history ON "orders".id = max_progress_history.order_id
+    LEFT JOIN (
+      SELECT order_id, COUNT(*) AS current_progress
+      FROM history
+      WHERE unit_price <> 0
+      GROUP BY order_id
+    ) AS current_progress_history ON "orders".id = current_progress_history.order_id
     LEFT JOIN (
       SELECT order_id, SUM(price) AS paid, SUM(unit_price) as unit_price
        FROM history
@@ -165,8 +172,9 @@ export class CustomerService {
         'item_name', item.name,
         'total_treatment', "orders".total_treatment,
         'treatment_progress', COALESCE(max_progress_history.max_progress, 0),
+        'current_progress', COALESCE(current_progress_history.current_progress, 0),
         'paid', COALESCE(paid_history.paid, 0)
-      )
+      ) ORDER BY "orders".id DESC 
     ) AS orders,
     COALESCE(SUM(paid_history.paid), 0) AS total_paid,
     COALESCE(SUM(paid_history.unit_price), 0) AS total_unit_price
@@ -179,6 +187,12 @@ export class CustomerService {
       FROM history
       GROUP BY order_id
     ) AS max_progress_history ON "orders".id = max_progress_history.order_id
+    LEFT JOIN (
+      SELECT order_id, COUNT(*) AS current_progress
+      FROM history
+      WHERE unit_price <> 0
+      GROUP BY order_id
+    ) AS current_progress_history ON "orders".id = current_progress_history.order_id
     LEFT JOIN (
       SELECT order_id, SUM(price) AS paid, SUM(unit_price) as unit_price
        FROM history
