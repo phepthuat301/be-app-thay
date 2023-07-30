@@ -189,25 +189,31 @@ export class HistoryService {
     const historyRepo = getRepository(History);
     const [history, totalHistories] = await Promise.all([
       historyRepo
-        .createQueryBuilder('history')
-        .leftJoin('orders', 'orders', 'history.order_id = orders.id')
-        .leftJoin('customer', 'customer', 'orders.client_id = customer.id')
-        .leftJoin('item', 'item', 'orders.item_id = item.id')
-        .select([
-          'history.created_at',
-          'customer.name',
-          'item.name',
-          'history.treatment_progress',
-          'orders.total_treatment',
-          'history.price'
-        ])
-        .where('customer.id = :userId', { userId: parseInt(userId) })
-        .andWhere('history.unit_price <> 0 OR history.price <> 0')
-        .orderBy('history.created_at', 'DESC')
-        .offset((page - 1) * limit)
-        .limit(limit)
-        .getRawMany(),
-      getRepository('history').query(`
+        .query(`
+          SELECT
+            history.created_at,
+            customer.name AS customer_name,
+            item.name AS item_name,
+            history.treatment_progress,
+            orders.total_treatment,
+            history.price
+          FROM
+              history
+          LEFT JOIN
+              orders ON history.order_id = orders.id
+          LEFT JOIN
+              customer ON orders.client_id = customer.id
+          LEFT JOIN
+              item ON orders.item_id = item.id
+          WHERE
+              customer.id = $1
+              AND (history.unit_price <> 0 OR history.price <> 0)
+          ORDER BY
+              history.created_at DESC
+          OFFSET $2
+          LIMIT $3;`,
+          [userId, (page - 1) * limit, limit]),
+      historyRepo.query(`
           SELECT COUNT(*) as count
           FROM history
           LEFT JOIN orders ON history.order_id = orders.id
