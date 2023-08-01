@@ -149,14 +149,23 @@ export class CustomerService {
     return customerList;
   };
 
-  getCustomerByName = async (keyword: string, page: number, limit: number) => {
+  getCustomerByName = async (keyword: string, sort: string, order: string, page: number, limit: number) => {
     let conditionQuery = `WHERE customer.status = '${CUSTOMER_STATUS_ENUM.ACTIVE}'`;
+    let orderByQuery = "ORDER BY customer.updated_at DESC"
     const queryParams = [];
     let countConditionQuery: any = { status: CUSTOMER_STATUS_ENUM.ACTIVE }
     if (keyword) {
       conditionQuery = `WHERE customer.name ILIKE $1 and customer.status = '${CUSTOMER_STATUS_ENUM.ACTIVE}'`;
       queryParams.push(`%${keyword}%`);
       countConditionQuery = { name: ILike(`%${keyword}%`), status: CUSTOMER_STATUS_ENUM.ACTIVE }
+    }
+
+    if (sort && order) {
+      if (sort === 'debt' && order !== 'normal') {
+        orderByQuery = `ORDER BY debt ${order}`
+      } else if (sort === 'point' && order !== 'normal') {
+        orderByQuery = `ORDER BY customer.reward_point ${order}`
+      }
     }
 
     const query = `
@@ -177,7 +186,8 @@ export class CustomerService {
       ) ORDER BY "orders".id DESC 
     ) AS orders,
     COALESCE(SUM(paid_history.paid), 0) AS total_paid,
-    COALESCE(SUM(paid_history.unit_price), 0) AS total_unit_price
+    COALESCE(SUM(paid_history.unit_price), 0) AS total_unit_price,
+    (COALESCE(SUM(paid_history.paid), 0) - COALESCE(SUM(paid_history.unit_price), 0)) < 0 AS debt
     FROM
       customer
     LEFT JOIN "orders" ON customer.id = "orders".client_id
@@ -201,8 +211,7 @@ export class CustomerService {
     ${conditionQuery}
     GROUP BY
       customer.id
-    ORDER BY
-      customer.updated_at DESC
+    ${orderByQuery}
     OFFSET $${queryParams.length + 1} ROWS
     LIMIT $${queryParams.length + 2};
     `;

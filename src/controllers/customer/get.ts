@@ -17,8 +17,10 @@ export const getCustomerListByName = async (req: Request, res: Response) => {
 
     let page = req.body.page ? parseInt(req.body.page as string) : 1;
     let limit = req.body.limit ? parseInt(req.body.limit as string) : 10;
+    let sort = req.body.sort ? req.body.sort : 'debt';
+    let order = req.body.order ? req.body.order : 'normal';
 
-    const data = await CustomerService.getInstance().getCustomerByName(keyword, page, limit);
+    const data = await CustomerService.getInstance().getCustomerByName(keyword, sort, order, page, limit);
     return res.status(200).send({ message: 'Get Customer List By Name Sucessfully', success: true, data });
   } catch (err) {
     console.log(err);

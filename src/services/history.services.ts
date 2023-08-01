@@ -66,8 +66,10 @@ export class HistoryService {
 
     const reward_apprerance_point = await ConfigurationServices.getInstance().getConfigValue(REWARD_APPRERANCE_POINT);
     //update reward point
-    customer.reward_point += +reward_apprerance_point;
-    await customerRepository.save(customer);
+    if (newHistory.price > 0) {
+      customer.reward_point += +reward_apprerance_point;
+      await customerRepository.save(customer);
+    }
 
     return newHistory;
   };
