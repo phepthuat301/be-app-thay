@@ -187,7 +187,7 @@ export class CustomerService {
     ) AS orders,
     COALESCE(SUM(paid_history.paid), 0) AS total_paid,
     COALESCE(SUM(paid_history.unit_price), 0) AS total_unit_price,
-    (COALESCE(SUM(paid_history.paid), 0) - COALESCE(SUM(paid_history.unit_price), 0)) < 0 AS debt
+    (COALESCE(SUM(paid_history.paid), 0) - COALESCE(SUM(paid_history.unit_price), 0)) AS debt
     FROM
       customer
     LEFT JOIN "orders" ON customer.id = "orders".client_id

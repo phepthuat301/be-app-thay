@@ -3,7 +3,6 @@ import { History } from 'orm/entities/models/history';
 import { Order } from 'orm/entities/models/order';
 
 import { getRepository, ILike, In, Not } from 'typeorm';
-import { OrderService } from './order.services';
 import { ConfigurationServices } from './configuration.services';
 import { REWARD_APPRERANCE_POINT } from 'share/configurations/constant';
 
@@ -66,7 +65,7 @@ export class HistoryService {
 
     const reward_apprerance_point = await ConfigurationServices.getInstance().getConfigValue(REWARD_APPRERANCE_POINT);
     //update reward point
-    if (newHistory.price > 0) {
+    if (!notVisit) {
       customer.reward_point += +reward_apprerance_point;
       await customerRepository.save(customer);
     }
