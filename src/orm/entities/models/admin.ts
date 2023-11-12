@@ -3,7 +3,7 @@ import { Entity, Column } from 'typeorm';
 
 import { ModelEntity } from './model';
 import { ROLE_ENUM, ADMIN_STATUS_ENUM } from '../../../share/enum';
-@Entity('admin')
+@Entity('users')
 export class Admin extends ModelEntity {
   @Column({
     unique: true,

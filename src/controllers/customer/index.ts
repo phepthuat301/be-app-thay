@@ -1,4 +1,4 @@
-export * from './create';
+export * from './save-info';
 export * from './edit';
-export * from './get';
+export * from './get-info';
 export * from './delete';
