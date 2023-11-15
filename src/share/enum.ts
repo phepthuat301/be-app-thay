@@ -12,6 +12,7 @@ export enum ITEM_STATUS_ENUM {
 export enum ROLE_ENUM {
   ADMIN = 'ADMIN',
   STAFF = 'STAFF',
+  USER = 'USER',
 }
 
 export enum ADMIN_STATUS_ENUM {

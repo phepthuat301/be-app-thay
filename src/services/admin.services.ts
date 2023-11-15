@@ -18,7 +18,7 @@ const register = async (email: string, password: string, phone: string) => {
   newUser.email = email;
   newUser.password = password;
   newUser.username = email.split('@')[0];
-  newUser.role = ROLE_ENUM.ADMIN;
+  newUser.role = ROLE_ENUM.USER;
   newUser.phone = phone;
   newUser.status = ADMIN_STATUS_ENUM.ACTIVE;
   newUser.hashPassword();
@@ -41,6 +41,32 @@ const register = async (email: string, password: string, phone: string) => {
 const login = async (email: string, password: string) => {
   const adminRepository = getRepository(Admin);
   const user = await adminRepository.findOne({ where: { email } });
+
+  if (!user) {
+    throw new Error('Not found Admin');
+  }
+
+  if (!user.checkIfPasswordMatch(password)) {
+    throw new Error('Incorrect password or email');
+  }
+
+  const jwtPayload: JwtPayload = {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    created_at: user.createdAt,
+  };
+
+  const token = createJwtToken(jwtPayload);
+  if (!token) {
+    throw Error('Cannot create token');
+  }
+  return token;
+};
+
+const loginAdmin = async (email: string, password: string) => {
+  const adminRepository = getRepository(Admin);
+  const user = await adminRepository.findOne({ where: { email, role: ROLE_ENUM.ADMIN } });
 
   if (!user) {
     throw new Error('Not found Admin');
@@ -120,6 +146,7 @@ const AdminService = {
   changePassword,
   getAdminInfo,
   verifyPagePassword,
+  loginAdmin
 };
 
 export default AdminService;
