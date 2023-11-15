@@ -66,3 +66,48 @@ export const getPatientDetail = async (req: Request, res: Response) => {
         return res.status(400).send({ message: err.message, success: false, data: {} });
     }
 };
+
+export const getStatistic = async (req: Request, res: Response) => {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set the time to the beginning of the day
+
+        const bloodSugarRepository = getRepository(BloodSugar);
+        const userCount = await bloodSugarRepository
+            .createQueryBuilder('bloodSugar')
+            .leftJoin(Admin, 'user', 'bloodSugar.user_id = user.id')
+            .where('bloodSugar.test_date >= :today', { today })
+            // .andWhere('bloodSugar.test_date < :tomorrow', { tomorrow: new Date(today.getTime() + 24 * 60 * 60 * 1000) }) // Test date less than tomorrow
+            .andWhere('user.role = :userRole', { userRole: ROLE_ENUM.USER })
+            .select('COUNT(DISTINCT user.id)', 'userCount')
+            .getRawOne();
+
+        const userRepository = getRepository(Admin);
+        const users = await userRepository
+            .createQueryBuilder('user')
+            .where('user.role = :userRole', { userRole: 'USER' })
+            .select('COUNT(user.id)', 'userCount')
+            .getRawOne();
+
+        const data = {
+            labels: ['Đã điểm danh', 'Chưa điểm danh'],
+            datasets: [
+                {
+                    data: [userCount.userCount, users.userCount - userCount.userCount],
+                    backgroundColor: ['#0F8BFD', '#545C6B'],
+                    hoverBackgroundColor: ['#0F8BFD', '#545C6B'],
+                    borderColor: 'transparent',
+                    fill: true
+                }
+            ]
+        }
+        return res.status(200).send({
+            message: 'Get statistics successfully',
+            success: true,
+            data
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(400).send({ message: err.message, success: false, data: {} });
+    }
+};
