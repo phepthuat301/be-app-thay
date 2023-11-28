@@ -35,3 +35,27 @@ export const getInfo = async (req: Request, res: Response) => {
     return res.status(400).send({ message: err.message, success: false, data: {} });
   }
 };
+
+export const getImages = async (req: Request, res: Response) => {
+  try {
+    const { fromDate, toDate } = req.query;
+    const { id } = req.jwtPayload;
+
+    const user = await getRepository(Admin).findOne({ id: id });
+    if (!user) throw new Error(`User not found`);
+
+    const bloodSugarRepository = getRepository(BloodSugar);
+
+    const data = await bloodSugarRepository
+      .createQueryBuilder('bloodsugar')
+      .select(['DATE(bloodsugar.test_date) AS date', 'bloodsugar.image_url as image_url'])
+      .where('bloodsugar.test_date >= :fromDate AND bloodsugar.test_date <= :toDate AND bloodsugar.user_id = :userId', { fromDate: new Date(parseInt(`${fromDate}`)), toDate: new Date(parseInt(`${toDate}`)), userId: user.id })
+      .groupBy('date, bloodsugar.image_url')
+      .getRawMany();
+
+    return res.status(200).send({ message: 'Get Images Sucessfully', success: true, data });
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send({ message: err.message, success: false, data: {} });
+  }
+};

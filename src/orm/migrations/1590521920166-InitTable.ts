@@ -10,6 +10,8 @@ export class CreateUsers1590521920166 implements MigrationInterface {
         "email" character varying(255) NOT NULL UNIQUE,
         "password" character varying(255) NOT NULL,
         "username" character varying(255),
+        "name" character varying(255),
+        "gender" character varying(255),
         "role" character varying(30) DEFAULT 'ADMINISTATOR',
         "phone" character varying(255) NOT NULL UNIQUE,
         "status" character varying(255),

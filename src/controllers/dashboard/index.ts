@@ -3,7 +3,7 @@ import { Admin } from "orm/entities/models/admin";
 import { BloodSugar } from "orm/entities/models/bloodsugar";
 import AdminService from "services/admin.services";
 import { ROLE_ENUM } from "share/enum";
-import { getRepository } from "typeorm";
+import { Between, getRepository, Repository } from "typeorm";
 
 export const loginAdmin = async (req: Request, res: Response) => {
     try {
@@ -69,38 +69,50 @@ export const getPatientDetail = async (req: Request, res: Response) => {
 
 export const getStatistic = async (req: Request, res: Response) => {
     try {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set the time to the beginning of the day
+        const { from, to, id }: any = req.query;
 
-        const bloodSugarRepository = getRepository(BloodSugar);
-        const userCount = await bloodSugarRepository
-            .createQueryBuilder('bloodSugar')
-            .leftJoin(Admin, 'user', 'bloodSugar.user_id = user.id')
-            .where('bloodSugar.test_date >= :today', { today })
-            // .andWhere('bloodSugar.test_date < :tomorrow', { tomorrow: new Date(today.getTime() + 24 * 60 * 60 * 1000) }) // Test date less than tomorrow
-            .andWhere('user.role = :userRole', { userRole: ROLE_ENUM.USER })
-            .select('COUNT(DISTINCT user.id)', 'userCount')
-            .getRawOne();
+        if (!from || !to || !id) {
+            return res.status(400).send({
+                message: 'Input invalid.',
+                success: false,
+                data: {}
+            });
+        }
 
-        const userRepository = getRepository(Admin);
-        const users = await userRepository
-            .createQueryBuilder('user')
-            .where('user.role = :userRole', { userRole: 'USER' })
-            .select('COUNT(user.id)', 'userCount')
-            .getRawOne();
+        const fromDate = new Date(parseInt(from));
+        const toDate = new Date(parseInt(to));
+        
+        // Query for blood sugar entries within the specified date range and for the given userId
+        const bloodSugarEntries = await getRepository(BloodSugar).find({
+            where: {
+                user_id: id,
+                test_date: Between(fromDate, toDate),
+            },
+        });
+
+        // Extract unique dates from the retrieved blood sugar entries
+        const uniqueDates = new Set(bloodSugarEntries.map(entry => entry.test_date.toISOString().split('T')[0]));
+
+        // Calculate the total number of days within the specified range
+        const totalDays = Math.floor((toDate.getTime() - fromDate.getTime()) / (24 * 60 * 60 * 1000)) + 1;
+
+        // Calculate the number of days with updates and without updates
+        const daysWithUpdates = uniqueDates.size;
+        const daysWithoutUpdates = totalDays - daysWithUpdates;
 
         const data = {
             labels: ['Đã điểm danh', 'Chưa điểm danh'],
             datasets: [
                 {
-                    data: [userCount.userCount, users.userCount - userCount.userCount],
+                    data: [daysWithUpdates, daysWithoutUpdates],
                     backgroundColor: ['#0F8BFD', '#545C6B'],
                     hoverBackgroundColor: ['#0F8BFD', '#545C6B'],
                     borderColor: 'transparent',
                     fill: true
                 }
             ]
-        }
+        };
+
         return res.status(200).send({
             message: 'Get statistics successfully',
             success: true,

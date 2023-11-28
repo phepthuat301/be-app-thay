@@ -33,6 +33,16 @@ export class Admin extends ModelEntity {
   @Column({
     nullable: true,
   })
+  name: string;
+
+  @Column({
+    nullable: true,
+  })
+  gender: string;
+
+  @Column({
+    nullable: true,
+  })
   status: ADMIN_STATUS_ENUM;
 
   hashPassword() {

@@ -10,7 +10,6 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 
 import './utils/response/customSuccess';
-import { errorHandler } from './middleware/errorHandler';
 import { getLanguage } from './middleware/getLanguage';
 import { dbCreateConnection } from './orm/dbCreateConnection';
 import routes from './routes';
@@ -19,8 +18,8 @@ import { InitService } from 'services';
 export const app = express();
 app.use(cors());
 app.use(helmet());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({ limit: '20mb' }));
+app.use(bodyParser.urlencoded({ extended: false, limit: '20mb' }));
 app.use(getLanguage);
 
 try {
@@ -34,8 +33,6 @@ try {
 app.use(morgan('combined'));
 
 app.use('/', routes);
-
-app.use(errorHandler);
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => {

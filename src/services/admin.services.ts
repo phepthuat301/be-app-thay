@@ -6,7 +6,7 @@ import { createJwtToken } from 'utils/createJwtToken';
 import { ConfigurationServices } from './configuration.services';
 import { PAGE_PASSWORD } from 'share/configurations/constant';
 
-const register = async (email: string, password: string, phone: string) => {
+const register = async (email: string, password: string, phone: string, name: string, gender: string) => {
   const adminRepository = getRepository(Admin);
   const user = await adminRepository.findOne({ where: { email } });
 
@@ -20,6 +20,8 @@ const register = async (email: string, password: string, phone: string) => {
   newUser.username = email.split('@')[0];
   newUser.role = ROLE_ENUM.USER;
   newUser.phone = phone;
+  newUser.name = name;
+  newUser.gender = gender;
   newUser.status = ADMIN_STATUS_ENUM.ACTIVE;
   newUser.hashPassword();
   await adminRepository.save(newUser);

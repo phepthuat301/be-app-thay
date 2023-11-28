@@ -30,13 +30,11 @@ export const saveInfo = async (req: Request, res: Response) => {
       .getOne();
 
     if (existingRecord) {
-      existingRecord.blood_sugar_level = sugarBloodLevel;
       existingRecord.image_url = url;
       existingRecord.test_date = new Date();
       await bloodSugarRepository.save(existingRecord);
     } else {
       const bloodSugar = new BloodSugar();
-      bloodSugar.blood_sugar_level = sugarBloodLevel;
       bloodSugar.image_url = url;
       bloodSugar.test_date = new Date();
       bloodSugar.user_id = user.id;
