@@ -42,14 +42,14 @@ const register = async (email: string, password: string, phone: string, name: st
 
 const login = async (email: string, password: string) => {
   const adminRepository = getRepository(Admin);
-  const user = await adminRepository.findOne({ where: { email } });
+  const user = await adminRepository.findOne({ where: { phone: email } });
 
   if (!user) {
     throw new Error('Not found Admin');
   }
 
   if (!user.checkIfPasswordMatch(password)) {
-    throw new Error('Incorrect password or email');
+    throw new Error('Incorrect password or phone number');
   }
 
   const jwtPayload: JwtPayload = {
