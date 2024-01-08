@@ -15,7 +15,7 @@ export enum ROLE_ENUM {
   USER = 'USER',
 }
 
-export enum ADMIN_STATUS_ENUM {
+export enum USER_STATUS_ENUM {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
   DELETED = 'DELETED',
@@ -29,4 +29,9 @@ export enum CUSTOMER_STATUS_ENUM {
 export enum PAYMENT_ENUM {
   MONEY = 'MONEY',
   POINT = 'POINT',
+}
+
+export enum FORGOT_PASSWORD_METHOD_ENUM {
+  PHONE = 'PHONE',
+  EMAIL = 'EMAIL',
 }

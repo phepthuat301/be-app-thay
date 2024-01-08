@@ -2,9 +2,9 @@ import bcrypt from 'bcryptjs';
 import { Entity, Column } from 'typeorm';
 
 import { ModelEntity } from './model';
-import { ROLE_ENUM, ADMIN_STATUS_ENUM } from '../../../share/enum';
+import { ROLE_ENUM, USER_STATUS_ENUM } from '../../../share/enum';
 @Entity('users')
-export class Admin extends ModelEntity {
+export class User extends ModelEntity {
   @Column({
     unique: true,
   })
@@ -20,7 +20,7 @@ export class Admin extends ModelEntity {
   username: string;
 
   @Column({
-    default: 'ADMINISTATOR',
+    default: 'USER',
     length: 30,
   })
   role: ROLE_ENUM;
@@ -43,7 +43,7 @@ export class Admin extends ModelEntity {
   @Column({
     nullable: true,
   })
-  status: ADMIN_STATUS_ENUM;
+  status: USER_STATUS_ENUM;
 
   hashPassword() {
     this.password = bcrypt.hashSync(this.password, 8);

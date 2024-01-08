@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
-import { Admin } from "orm/entities/models/admin";
+import { User } from "orm/entities/models/user";
 import { BloodSugar } from "orm/entities/models/bloodsugar";
-import AdminService from "services/admin.services";
+import UserService from "services/user.services";
 import { ROLE_ENUM } from "share/enum";
-import { Between, getRepository, Repository } from "typeorm";
+import { Between, getRepository } from "typeorm";
 
 export const loginAdmin = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
-        const data = await AdminService.loginAdmin(email, password);
+        const data = await UserService.loginAdmin(email, password);
         return res.status(200).send({ message: 'Login Sucessfully', success: true, data });
     } catch (err) {
         console.log(err);
@@ -23,7 +23,7 @@ export const getListPatient = async (req: Request, res: Response) => {
 
         const skip = (page - 1) * pageSize; // Calculate the number of rows to skip
 
-        const [listUser, total] = await getRepository(Admin).findAndCount({
+        const [listUser, total] = await getRepository(User).findAndCount({
             select: ["id", "email", "createdAt", "username", "phone"],
             where: { role: ROLE_ENUM.USER },
             skip: skip,
@@ -81,7 +81,7 @@ export const getStatistic = async (req: Request, res: Response) => {
 
         const fromDate = new Date(parseInt(from));
         const toDate = new Date(parseInt(to));
-        
+
         // Query for blood sugar entries within the specified date range and for the given userId
         const bloodSugarEntries = await getRepository(BloodSugar).find({
             where: {

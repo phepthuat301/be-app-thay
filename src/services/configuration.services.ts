@@ -1,9 +1,10 @@
 import { Configuration } from 'orm/entities/models/configurations';
+import { CONFIGURATIONS } from 'share/configurations/constant';
 import { getRepository } from 'typeorm';
 
 export class ConfigurationServices {
   private static instance: ConfigurationServices;
-  private constructor() {}
+  private constructor() { }
   public static getInstance(): ConfigurationServices {
     if (!this.instance) {
       this.instance = new ConfigurationServices();
@@ -12,14 +13,14 @@ export class ConfigurationServices {
   }
 
   async init() {
-    // console.log('ConfigurationServices init');
-    // const configRepository = getRepository(Configuration);
-    // for (const config of CONFIGURATIONS) {
-    //   const configFromDb = await configRepository.findOne({ key: config.key });
-    //   if (!configFromDb) {
-    //     await configRepository.save(config);
-    //   }
-    // }
+    console.log('ConfigurationServices init');
+    const configRepository = getRepository(Configuration);
+    for (const config of CONFIGURATIONS) {
+      const configFromDb = await configRepository.findOne({ key: config.key });
+      if (!configFromDb) {
+        await configRepository.save(config);
+      }
+    }
   }
 
   async getConfigValue(key: string) {

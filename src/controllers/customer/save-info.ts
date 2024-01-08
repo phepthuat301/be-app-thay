@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Admin } from 'orm/entities/models/admin';
+import { User } from 'orm/entities/models/user';
 import { BloodSugar } from 'orm/entities/models/bloodsugar';
 import { AwsService } from 'services/aws.service';
 import { getRepository } from 'typeorm';
@@ -10,7 +10,7 @@ export const saveInfo = async (req: Request, res: Response) => {
     let { sugarBloodLevel, image } = req.body;
     const bloodSugarRepository = getRepository(BloodSugar);
 
-    const user = await getRepository(Admin).findOne({ id });
+    const user = await getRepository(User).findOne({ id });
     if (!user) throw new Error(`User not found`);
 
     // upload image 

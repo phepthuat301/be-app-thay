@@ -1,5 +1,5 @@
-import { Admin } from 'orm/entities/models/admin';
-import { ADMIN_STATUS_ENUM, ROLE_ENUM } from 'share/enum';
+import { User } from 'orm/entities/models/user';
+import { USER_STATUS_ENUM, ROLE_ENUM } from 'share/enum';
 import { getRepository } from 'typeorm';
 import { JwtPayload } from 'types/JwtPayload';
 import { createJwtToken } from 'utils/createJwtToken';
@@ -7,22 +7,30 @@ import { ConfigurationServices } from './configuration.services';
 import { PAGE_PASSWORD } from 'share/configurations/constant';
 
 const register = async (email: string, password: string, phone: string, name: string, gender: string) => {
-  const adminRepository = getRepository(Admin);
-  const user = await adminRepository.findOne({ where: { email } });
+  const adminRepository = getRepository(User);
+  if (email) {
+    const user = await adminRepository.findOne({ where: { email } });
 
-  if (user) {
-    throw new Error('Email already exists');
+    if (user) {
+      throw new Error('Email đã tồn tại');
+    }
   }
 
-  const newUser = new Admin();
-  newUser.email = email;
+  const user = await adminRepository.findOne({ where: { phone } });
+
+  if (user) {
+    throw new Error('Số điện thoại đã có người sử dụng');
+  }
+
+  const newUser = new User();
+  // newUser.email = email;
   newUser.password = password;
-  newUser.username = email.split('@')[0];
+  // newUser.username = email.split('@')[0];
   newUser.role = ROLE_ENUM.USER;
   newUser.phone = phone;
   newUser.name = name;
   newUser.gender = gender;
-  newUser.status = ADMIN_STATUS_ENUM.ACTIVE;
+  newUser.status = USER_STATUS_ENUM.ACTIVE;
   newUser.hashPassword();
   await adminRepository.save(newUser);
 
@@ -41,15 +49,15 @@ const register = async (email: string, password: string, phone: string, name: st
 };
 
 const login = async (email: string, password: string) => {
-  const adminRepository = getRepository(Admin);
+  const adminRepository = getRepository(User);
   const user = await adminRepository.findOne({ where: { phone: email } });
 
   if (!user) {
-    throw new Error('Not found Admin');
+    throw new Error('Không tìm thấy tài khoản');
   }
 
   if (!user.checkIfPasswordMatch(password)) {
-    throw new Error('Incorrect password or phone number');
+    throw new Error('Sai mật khẩu.');
   }
 
   const jwtPayload: JwtPayload = {
@@ -67,11 +75,11 @@ const login = async (email: string, password: string) => {
 };
 
 const loginAdmin = async (email: string, password: string) => {
-  const adminRepository = getRepository(Admin);
+  const adminRepository = getRepository(User);
   const user = await adminRepository.findOne({ where: { email, role: ROLE_ENUM.ADMIN } });
 
   if (!user) {
-    throw new Error('Not found Admin');
+    throw new Error('Not found User');
   }
 
   if (!user.checkIfPasswordMatch(password)) {
@@ -93,10 +101,10 @@ const loginAdmin = async (email: string, password: string) => {
 };
 
 const changePassword = async (id: number, password: string, passwordNew: string) => {
-  const adminRepository = getRepository(Admin);
-  const user = await adminRepository.findOne({ where: { id, status: ADMIN_STATUS_ENUM.ACTIVE } });
+  const adminRepository = getRepository(User);
+  const user = await adminRepository.findOne({ where: { id, status: USER_STATUS_ENUM.ACTIVE } });
   if (!user) {
-    throw new Error('Not found Admin');
+    throw new Error('Not found User');
   }
 
   if (!user.checkIfPasswordMatch(password)) {
@@ -108,11 +116,11 @@ const changePassword = async (id: number, password: string, passwordNew: string)
   await adminRepository.save(user);
 };
 
-const getAdminInfo = async (id: number) => {
-  const adminRepository = getRepository(Admin);
-  const user = await adminRepository.findOne({ where: { id, status: ADMIN_STATUS_ENUM.ACTIVE } });
+const getUserInfo = async (id: number) => {
+  const adminRepository = getRepository(User);
+  const user = await adminRepository.findOne({ where: { id, status: USER_STATUS_ENUM.ACTIVE } });
   if (!user) {
-    throw new Error('Not found Admin');
+    throw new Error('Not found User');
   }
   return {
     id: user.id,
@@ -124,10 +132,10 @@ const getAdminInfo = async (id: number) => {
 const verifyPagePassword = async (password: string, pageName: string) => {
   if (!pageName) throw new Error('Input not valid');
 
-  const adminRepository = getRepository(Admin);
-  const user = await adminRepository.findOne({ where: { id: 1, status: ADMIN_STATUS_ENUM.ACTIVE } });
+  const adminRepository = getRepository(User);
+  const user = await adminRepository.findOne({ where: { id: 1, status: USER_STATUS_ENUM.ACTIVE } });
   if (!user) {
-    throw new Error('Not found Admin');
+    throw new Error('Not found User');
   }
 
   //get configuration
@@ -142,13 +150,13 @@ const verifyPagePassword = async (password: string, pageName: string) => {
 }
 
 
-const AdminService = {
+const UserService = {
   register,
   login,
   changePassword,
-  getAdminInfo,
+  getUserInfo,
   verifyPagePassword,
   loginAdmin
 };
 
-export default AdminService;
+export default UserService;

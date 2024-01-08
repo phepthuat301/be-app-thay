@@ -1,29 +1,13 @@
-export const REWARD_APPRERANCE_POINT = 'reward.appearance.point';
-export const REWARD_REFERRAL_POINT = 'reward.referral.point';
-export const LIST_STATISTIC_YEAR = 'list.statistic.year';
-export const LIST_STATISTIC_MONTH = 'list.statistic.point';
-export const PAGE_PASSWORD = 'page.password';
+export const ACCOUNT_SEND_OTP_SECOND_EACH_TIME_CONFIG_KEY = 'account.send.otp.second.each.time';
+export const ACCOUNT_SEND_OTP_CODE_LENGTH_CONFIG_KEY = 'account.send.otp.code.length';
 
 export const CONFIGURATIONS = [
   {
-    key: REWARD_APPRERANCE_POINT,
-    value: "1",
+    key: ACCOUNT_SEND_OTP_SECOND_EACH_TIME_CONFIG_KEY,
+    value: '60',
   },
   {
-    key: REWARD_REFERRAL_POINT,
-    value: "1",
+    key: ACCOUNT_SEND_OTP_CODE_LENGTH_CONFIG_KEY,
+    value: '6',
   },
-  {
-    key: LIST_STATISTIC_YEAR,
-    value: "2023,2024",
-  },
-  {
-    key: LIST_STATISTIC_MONTH,
-    value: "1,2,3,4,5,6,7,8,9,10,11,12",
-  },
-
-  {
-    key: PAGE_PASSWORD,
-    value: `[{ "pageName": "history", "password": "admin@2023" }, { "pageName": "order", "password": "admin@2023" }, { "pageName": "statistic", "password": "admin@2023" }]`,
-  }
 ];

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Admin } from 'orm/entities/models/admin';
+import { User } from 'orm/entities/models/user';
 import { BloodSugar } from 'orm/entities/models/bloodsugar';
 import { getRepository } from 'typeorm';
 
@@ -8,7 +8,7 @@ export const getInfo = async (req: Request, res: Response) => {
     const { fromDate, toDate } = req.query;
     const { id } = req.jwtPayload;
 
-    const user = await getRepository(Admin).findOne({ id: id });
+    const user = await getRepository(User).findOne({ id: id });
     if (!user) throw new Error(`User not found`);
 
     const bloodSugarRepository = getRepository(BloodSugar);
@@ -41,7 +41,7 @@ export const getImages = async (req: Request, res: Response) => {
     const { fromDate, toDate } = req.query;
     const { id } = req.jwtPayload;
 
-    const user = await getRepository(Admin).findOne({ id: id });
+    const user = await getRepository(User).findOne({ id: id });
     if (!user) throw new Error(`User not found`);
 
     const bloodSugarRepository = getRepository(BloodSugar);
