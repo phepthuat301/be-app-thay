@@ -67,7 +67,7 @@ export const checkUser = async (req: Request, res: Response) => {
             'COMPLETED',
             forgotMethod
         );
-
+        delete user.password;
         return res
             .status(200)
             .send({ message: 'Send Code Sucessfully', success: true, data: { forgotMethod, user } });

@@ -70,6 +70,8 @@ const login = async (phone: string, password: string) => {
     throw Error('Cannot create token');
   }
   const checkin = getRepository(BloodSugar).findOne({ where: { user_id: user.id } });
+
+  delete user.password
   return { token, userInfo: user, isFirstUpload: !!checkin };
 };
 
