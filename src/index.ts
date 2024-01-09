@@ -41,5 +41,5 @@ app.listen(port, () => {
 
 (async () => {
   await dbCreateConnection();
-  await InitService();
+  // await InitService();
 })();

@@ -32,7 +32,7 @@ export const updateInfo = async (req: Request, res: Response) => {
       }
       const fileName = `liverEnzymeTestResultImage-image-${Date.now()}.jpg`;
       const liverEnzymeTestResultImageUrl = await AwsService.getInstance().signS3(fileName, liverEnzymeTestResultImage);
-      user.liverEnzymeTestResultImage = liverEnzymeTestResultImageUrl;
+      user.liver_enzyme_test_result_image = liverEnzymeTestResultImageUrl;
     }
 
     if (diabeticTestResultImage) {
@@ -44,14 +44,14 @@ export const updateInfo = async (req: Request, res: Response) => {
       }
       const fileName = `diabeticTestResultImage-image-${Date.now()}.jpg`;
       const diabeticTestResultImageUrl = await AwsService.getInstance().signS3(fileName, diabeticTestResultImage);
-      user.diabeticTestResultImage = diabeticTestResultImageUrl;
+      user.diabetic_test_result_image = diabeticTestResultImageUrl;
     }
 
     if (name) {
       user.name = name;
     }
     if (yearOfBirth) {
-      user.yearOfBirth = yearOfBirth;
+      user.year_of_birth = yearOfBirth;
     }
     await getRepository(User).save(user);
 

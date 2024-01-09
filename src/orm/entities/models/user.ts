@@ -53,17 +53,17 @@ export class User extends ModelEntity {
   @Column({
     nullable: true,
   })
-  liverEnzymeTestResultImage: string;
+  liver_enzyme_test_result_image: string;
 
   @Column({
     nullable: true,
   })
-  diabeticTestResultImage: string;
+  diabetic_test_result_image: string;
 
   @Column({
     nullable: true,
   })
-  yearOfBirth: string;
+  year_of_birth: string;
 
   hashPassword() {
     this.password = bcrypt.hashSync(this.password, 8);

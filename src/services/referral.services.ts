@@ -2,8 +2,6 @@ import { Customer } from 'orm/entities/models/customer';
 import { Referral } from 'orm/entities/models/referral';
 import { CUSTOMER_STATUS_ENUM } from 'share/enum';
 import { getRepository } from 'typeorm';
-import { ConfigurationServices } from './configuration.services';
-import { REWARD_REFERRAL_POINT } from 'share/configurations/constant';
 
 export class ReferralService {
   private static instance: ReferralService;
@@ -28,10 +26,10 @@ export class ReferralService {
     }
     const referee = await this.getUserByReferralCode(referral_code);
 
-    const reward_point = await ConfigurationServices.getInstance().getConfigValue(REWARD_REFERRAL_POINT);
+    // const reward_point = await ConfigurationServices.getInstance().getConfigValue(REWARD_REFERRAL_POINT);
   
     await this.createReferral(referee.id, referrer_id);
-    referee.reward_point += +reward_point;
+    // referee.reward_point += +reward_point;
     await CustomerRepository.save(referee);
   }
 

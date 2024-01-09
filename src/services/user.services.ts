@@ -23,9 +23,8 @@ const register = async (email: string, password: string, phone: string, name: st
   }
 
   const newUser = new User();
-  // newUser.email = email;
+  newUser.email = email;
   newUser.password = password;
-  // newUser.username = email.split('@')[0];
   newUser.role = ROLE_ENUM.USER;
   newUser.phone = phone;
   newUser.name = name;
