@@ -81,7 +81,7 @@ export class AccountActionLogsService {
         user_id,
         action_type,
         payload_forgot_method,
-        created_at: Between(today, tomorrow),
+        createdAt: Between(today, tomorrow),
       })
       .getCount();
 

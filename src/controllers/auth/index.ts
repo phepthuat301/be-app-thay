@@ -81,8 +81,9 @@ export const checkUser = async (req: Request, res: Response) => {
 
 export const resetPassword = async (req: Request, res: Response) => {
     try {
-        const { emailOrPhone } = req.body;
+        const { emailOrPhone, password } = req.body;
         if (!emailOrPhone) throw new Error('Vui lòng nhập số điện thoại hoặc email!');
+        if (!password) throw new Error('Vui lòng nhập mật khẩu');
 
         const forgotMethod = detectEmailOrPhone(emailOrPhone);
 
@@ -108,7 +109,7 @@ export const resetPassword = async (req: Request, res: Response) => {
             forgotMethod,
         );
         if (actionLogs.length > 0) {
-            await UserService.resetPassword(user.id, req.body.password);
+            await UserService.resetPassword(user.id, password);
         } else {
             throw new Error('Không tìm thấy yêu cầu đổi mật khẩu')
         }
