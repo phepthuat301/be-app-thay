@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { User } from 'orm/entities/models/user';
 import { BloodSugar } from 'orm/entities/models/bloodsugar';
 import { AwsService } from 'services/aws.service';

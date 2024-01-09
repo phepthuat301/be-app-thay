@@ -45,6 +45,26 @@ export class User extends ModelEntity {
   })
   status: USER_STATUS_ENUM;
 
+  @Column({
+    nullable: true,
+  })
+  avatar: string;
+
+  @Column({
+    nullable: true,
+  })
+  liverEnzymeTestResultImage: string;
+
+  @Column({
+    nullable: true,
+  })
+  diabeticTestResultImage: string;
+
+  @Column({
+    nullable: true,
+  })
+  yearOfBirth: string;
+
   hashPassword() {
     this.password = bcrypt.hashSync(this.password, 8);
   }

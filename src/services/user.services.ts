@@ -1,12 +1,12 @@
+import { BloodSugar } from 'orm/entities/models/bloodsugar';
 import { User } from 'orm/entities/models/user';
 import { USER_STATUS_ENUM, ROLE_ENUM } from 'share/enum';
 import { getRepository } from 'typeorm';
 import { JwtPayload } from 'types/JwtPayload';
 import { createJwtToken } from 'utils/createJwtToken';
 import { ConfigurationServices } from './configuration.services';
-import { PAGE_PASSWORD } from 'share/configurations/constant';
 
-const register = async (email: string, password: string, phone: string, name: string, gender: string) => {
+const register = async (email: string, password: string, phone: string, name: string) => {
   const adminRepository = getRepository(User);
   if (email) {
     const user = await adminRepository.findOne({ where: { email } });
@@ -29,7 +29,6 @@ const register = async (email: string, password: string, phone: string, name: st
   newUser.role = ROLE_ENUM.USER;
   newUser.phone = phone;
   newUser.name = name;
-  newUser.gender = gender;
   newUser.status = USER_STATUS_ENUM.ACTIVE;
   newUser.hashPassword();
   await adminRepository.save(newUser);
@@ -48,9 +47,9 @@ const register = async (email: string, password: string, phone: string, name: st
   return token;
 };
 
-const login = async (email: string, password: string) => {
+const login = async (phone: string, password: string) => {
   const adminRepository = getRepository(User);
-  const user = await adminRepository.findOne({ where: { phone: email } });
+  const user = await adminRepository.findOne({ where: { phone: phone } });
 
   if (!user) {
     throw new Error('Không tìm thấy tài khoản');
@@ -71,7 +70,8 @@ const login = async (email: string, password: string) => {
   if (!token) {
     throw Error('Cannot create token');
   }
-  return token;
+  const checkin = getRepository(BloodSugar).findOne({ where: { user_id: user.id } });
+  return { token, userInfo: user, isFirstUpload: !!checkin };
 };
 
 const loginAdmin = async (email: string, password: string) => {
@@ -129,34 +129,26 @@ const getUserInfo = async (id: number) => {
   };
 };
 
-const verifyPagePassword = async (password: string, pageName: string) => {
-  if (!pageName) throw new Error('Input not valid');
 
+const resetPassword = async (id: number, passwordNew: string) => {
   const adminRepository = getRepository(User);
-  const user = await adminRepository.findOne({ where: { id: 1, status: USER_STATUS_ENUM.ACTIVE } });
+  const user = await adminRepository.findOne({ where: { id, status: USER_STATUS_ENUM.ACTIVE } });
   if (!user) {
-    throw new Error('Not found User');
+    throw new Error('Không tìm thấy người dùng');
   }
 
-  //get configuration
-  const refPass = await ConfigurationServices.getInstance().getConfigValue(PAGE_PASSWORD);
-  const listPass = JSON.parse(refPass);
-  const verifyPwd = listPass.some(item => item.pageName === pageName && item.password === password)
-  if (!verifyPwd) {
-    throw new Error('Incorrect password');
-  }
-  return verifyPwd;
-
-}
-
+  user.password = passwordNew;
+  user.hashPassword();
+  await adminRepository.save(user);
+};
 
 const UserService = {
   register,
   login,
   changePassword,
   getUserInfo,
-  verifyPagePassword,
-  loginAdmin
+  loginAdmin,
+  resetPassword
 };
 
 export default UserService;

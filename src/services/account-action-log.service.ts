@@ -2,7 +2,7 @@ import { AccountActionLog } from 'orm/entities/models/account-action-log';
 import { FORGOT_PASSWORD_METHOD_ENUM } from 'share/enum';
 import { Between, getRepository } from 'typeorm';
 
-export type ACTION_TYPE =
+type ACTION_TYPE =
   | 'FORGOT_PASSWORD'
   | 'CHANGE_PASSWORD'
   | 'EDIT_PROFILE'
@@ -11,7 +11,7 @@ export type ACTION_TYPE =
   | 'SEND_OTP'
   | 'CHANGE_PHONE_NUMBER'
   | 'TROUBLE_SIGN_IN';
-export type STATUS_TYPE = 'OPEN' | 'COMPLETED' | 'CANCELLED';
+type STATUS_TYPE = 'OPEN' | 'COMPLETED' | 'CANCELLED';
 
 export class AccountActionLogsService {
   private static instance: AccountActionLogsService;
@@ -56,6 +56,7 @@ export class AccountActionLogsService {
       user_id,
       action_type,
       payload_forgot_method,
+      status: 'COMPLETED'
     });
 
     return logs

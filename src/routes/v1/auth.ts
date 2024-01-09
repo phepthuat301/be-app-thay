@@ -1,13 +1,14 @@
 import { Router } from 'express';
 
-import { login, register, resetPassword, sendCode, verifyForgotPassword } from 'controllers/auth';
+import { changePassword, checkUser, login, register, resetPassword} from 'controllers/auth';
+import { checkJwt } from 'middleware/checkJwt';
 
 const router = Router();
 
 router.post('/register', register);
 router.post('/login', login);
-router.post('/forgot-password', sendCode);
-router.post('/verify-forgot-password', verifyForgotPassword);
+router.post('/check-user', checkUser);
 router.post('/reset-password', resetPassword);
+router.post('/change-password', [checkJwt], changePassword);
 
 export default router;
