@@ -4,7 +4,6 @@ import { USER_STATUS_ENUM, ROLE_ENUM } from 'share/enum';
 import { getRepository } from 'typeorm';
 import { JwtPayload } from 'types/JwtPayload';
 import { createJwtToken } from 'utils/createJwtToken';
-import { ConfigurationServices } from './configuration.services';
 
 const register = async (email: string, password: string, phone: string, name: string) => {
   const adminRepository = getRepository(User);
@@ -69,10 +68,8 @@ const login = async (phone: string, password: string) => {
   if (!token) {
     throw Error('Cannot create token');
   }
-  const checkin = getRepository(BloodSugar).findOne({ where: { user_id: user.id } });
-
   delete user.password
-  return { token, userInfo: user, isFirstUpload: !!checkin };
+  return { token, userInfo: user, isFirstUpload: user.is_first_upload };
 };
 
 const loginAdmin = async (email: string, password: string) => {

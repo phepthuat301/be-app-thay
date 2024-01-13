@@ -53,9 +53,10 @@ export const updateInfo = async (req: Request, res: Response) => {
     if (yearOfBirth) {
       user.year_of_birth = yearOfBirth;
     }
+    user.is_first_upload = false;
     await getRepository(User).save(user);
-
-    return res.status(200).send({ message: 'Update info sucessfully', success: true, data: {} });
+    delete user.password;
+    return res.status(200).send({ message: 'Update info sucessfully', success: true, data: user });
   } catch (err) {
     console.log(err);
     return res.status(400).send({ message: err.message, success: false, data: {} });

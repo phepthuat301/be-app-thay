@@ -65,6 +65,12 @@ export class User extends ModelEntity {
   })
   year_of_birth: string;
 
+  @Column({
+    nullable: true,
+    default: true,
+  })
+  is_first_upload: boolean;
+
   hashPassword() {
     this.password = bcrypt.hashSync(this.password, 8);
   }
