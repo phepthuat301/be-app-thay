@@ -27,12 +27,10 @@ export const saveInfo = async (req: Request, res: Response) => {
       .createQueryBuilder('bloodsugar')
       .where('DATE(bloodsugar.test_date) = DATE(:test_date)', { test_date: new Date() })
       .andWhere('bloodsugar.user_id = :user_id', { user_id: user.id })
-      .getOne();
+      .getMany();
 
-    if (existingRecord) {
-      existingRecord.image_url = url;
-      existingRecord.test_date = new Date();
-      await bloodSugarRepository.save(existingRecord);
+    if (existingRecord.length >= 3) {
+      throw new Error(`Bạn chỉ có thể điểm danh 1 ngày tối đa 3 lần`)
     } else {
       const bloodSugar = new BloodSugar();
       bloodSugar.image_url = url;

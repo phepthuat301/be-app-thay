@@ -51,6 +51,7 @@ export const getImages = async (req: Request, res: Response) => {
       .select(['DATE(bloodsugar.test_date) AS date', 'bloodsugar.image_url as image_url'])
       .where('bloodsugar.test_date >= :fromDate AND bloodsugar.test_date <= :toDate AND bloodsugar.user_id = :userId', { fromDate: new Date(parseInt(`${fromDate}`)), toDate: new Date(parseInt(`${toDate}`)), userId: user.id })
       .groupBy('date, bloodsugar.image_url')
+      .orderBy('date', 'DESC')
       .getRawMany();
 
     return res.status(200).send({ message: 'Get Images Sucessfully', success: true, data });

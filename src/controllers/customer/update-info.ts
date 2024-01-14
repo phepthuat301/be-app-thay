@@ -6,7 +6,7 @@ import { getRepository } from 'typeorm';
 export const updateInfo = async (req: Request, res: Response) => {
   try {
     const { id } = req.jwtPayload;
-    let { name, yearOfBirth, avatar, liverEnzymeTestResultImage, diabeticTestResultImage } = req.body;
+    let { name, yearOfBirth, avatar, liverEnzymeTestResultImage, diabeticTestResultImage, email, phoneNumber } = req.body;
 
     const user = await getRepository(User).findOne({ id });
     if (!user) throw new Error(`Không tìm thấy người dùng`);
@@ -53,6 +53,26 @@ export const updateInfo = async (req: Request, res: Response) => {
     if (yearOfBirth) {
       user.year_of_birth = yearOfBirth;
     }
+
+    if (email) {
+      const userExistWithEmail = await getRepository(User).findOne({ where: { email } });
+
+      if (userExistWithEmail) {
+        throw new Error('Email đã tồn tại');
+      } else {
+        user.email = email;
+      }
+    }
+
+    if (phoneNumber) {
+      const userExistWithPhoneNumber = await getRepository(User).findOne({ where: { phone: phoneNumber } });
+      if (userExistWithPhoneNumber) {
+        throw new Error('Số điện thoại đã có người sử dụng');
+      } else {
+        user.phone = phoneNumber;
+      }
+    }
+
     user.is_first_upload = false;
     await getRepository(User).save(user);
     delete user.password;

@@ -7,6 +7,7 @@ import { CustomError } from '../utils/response/custom-error/CustomError';
 
 export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.get('Authorization');
+  console.log(authHeader);
   if (!authHeader) {
     const customError = new CustomError(400, 'General', 'Authorization header not provided');
     return next(customError);
