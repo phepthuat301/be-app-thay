@@ -18,4 +18,7 @@ export class BloodSugar extends ModelEntity {
 
   @Column({ nullable: true })
   note: string;
+
+  @Column({ nullable: false })
+  test_time: Date;
 }

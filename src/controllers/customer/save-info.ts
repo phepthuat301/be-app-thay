@@ -35,6 +35,7 @@ export const saveInfo = async (req: Request, res: Response) => {
       const bloodSugar = new BloodSugar();
       bloodSugar.image_url = url;
       bloodSugar.test_date = new Date();
+      bloodSugar.test_time = new Date();
       bloodSugar.user_id = user.id;
       await bloodSugarRepository.save(bloodSugar);
     }
