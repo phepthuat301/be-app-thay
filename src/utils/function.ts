@@ -18,3 +18,21 @@ export function detectEmailOrPhone(input: string): string {
     }
     return 'Not a valid email or phone number';
 }
+
+export function stripBase64Prefix(image: string) {
+    const prefixes = ['data:image/png;base64,', 'data:image/jpeg;base64,', 'data:image/webp;base64,'];
+
+    for (const prefix of prefixes) {
+        if (image.startsWith(prefix)) {
+            return image.replace(prefix, '');
+        }
+    }
+
+    // If no matching prefix is found, return the original string
+    return image;
+}
+
+export const isBase64Image = (data: string): boolean => {
+    const regex = /^data:image\/(png|jpeg|webp);base64,/;
+    return regex.test(data);
+};
