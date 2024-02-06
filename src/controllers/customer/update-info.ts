@@ -12,15 +12,15 @@ export const updateInfo = async (req: Request, res: Response) => {
     const user = await getRepository(User).findOne({ id });
     if (!user) throw new Error(`Không tìm thấy người dùng`);
 
-    if (avatar) {
+    if (typeof (avatar) === 'string') {
       user.avatar = await processAndUploadImage(avatar, 'avatar-image') || '';
     }
 
-    if (liverEnzymeTestResultImage) {
+    if (typeof (liverEnzymeTestResultImage) === 'string') {
       user.liver_enzyme_test_result_image = await processAndUploadImage(liverEnzymeTestResultImage, 'liverEnzymeTestResultImage-image') || '';
     }
 
-    if (diabeticTestResultImage) {
+    if (typeof (diabeticTestResultImage) === 'string') {
       user.diabetic_test_result_image = await processAndUploadImage(diabeticTestResultImage, 'diabeticTestResultImage-image') || '';
     }
 
