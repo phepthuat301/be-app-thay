@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { User } from 'orm/entities/models/user';
 import { BloodSugar } from 'orm/entities/models/bloodsugar';
 import { getRepository } from 'typeorm';
+import moment from 'moment-timezone';
 
 export const getInfo = async (req: Request, res: Response) => {
   try {
@@ -46,17 +47,28 @@ export const getImages = async (req: Request, res: Response) => {
 
     const bloodSugarRepository = getRepository(BloodSugar);
 
+    const fromDateTime = new Date(parseInt(`${fromDate}`));
+    fromDateTime.setHours(0, 0, 0, 0); // Set time to start of the day
+
+    const toDateTime = new Date(parseInt(`${toDate}`));
+    toDateTime.setHours(23, 59, 59, 999); // Set time to end of the day
+
     const data = await bloodSugarRepository
       .createQueryBuilder('bloodsugar')
       .select([
-        'bloodsugar.image_url as image_url', 
-        'bloodsugar.test_time AT TIME ZONE \'UTC\' AT TIME ZONE \'Asia/Bangkok\' as date',
+        'bloodsugar.image_url as image_url',
+        'bloodsugar.test_time as date',
       ])
-      .where('bloodsugar.test_date >= :fromDate AND bloodsugar.test_date <= :toDate AND bloodsugar.user_id = :userId', { fromDate: new Date(parseInt(`${fromDate}`)), toDate: new Date(parseInt(`${toDate}`)), userId: user.id })
+      .where('bloodsugar.test_date >= :fromDate AND bloodsugar.test_date <= :toDate AND bloodsugar.user_id = :userId', { fromDate: fromDateTime, toDate: toDateTime, userId: user.id })
       .groupBy('date, bloodsugar.image_url')
       .orderBy({ date: 'DESC' })
       .getRawMany();
 
+    for (const item of data) {
+      const dateInGMT7 = moment(item.date).tz('Asia/Bangkok');
+      item.date = dateInGMT7.valueOf();
+    }
+    
     return res.status(200).send({ message: 'Get Images Sucessfully', success: true, data });
   } catch (err) {
     console.log(err);

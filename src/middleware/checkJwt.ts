@@ -20,8 +20,11 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
     ['iat', 'exp'].forEach((keyToRemove) => delete jwtPayload[keyToRemove]);
     req.jwtPayload = jwtPayload as JwtPayload;
   } catch (err) {
-    const customError = new CustomError(401, 'Raw', 'JWT error', null, err);
-    return next(customError);
+    if (err.name !== 'TokenExpiredError') {
+      // Handle token expiration error
+      const customError = new CustomError(401, 'Raw', 'JWT error', null, err);
+      return next(customError);
+    }
   }
 
   try {

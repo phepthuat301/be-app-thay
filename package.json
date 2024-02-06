@@ -36,6 +36,8 @@
     "helmet": "^5.0.2",
     "joi": "^17.9.2",
     "jsonwebtoken": "^8.5.1",
+    "moment": "^2.30.1",
+    "moment-timezone": "^0.5.45",
     "morgan": "^1.10.0",
     "pg": "^8.7.3",
     "referral-codes": "^2.0.3",
