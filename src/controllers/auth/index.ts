@@ -153,7 +153,8 @@ export const changePassword = async (req: Request, res: Response) => {
 export const deleteAccount = async (req: Request, res: Response) => {
     try {
         const userId = req.jwtPayload.id;
-        await UserService.deleteAccount(userId);
+        const { password } = req.body;
+        await UserService.deleteAccount(userId, password);
         return res.status(200).send({
             message: 'Xóa tài khoản thành công',
             success: true,

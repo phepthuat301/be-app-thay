@@ -149,11 +149,15 @@ const resetPassword = async (id: number, passwordNew: string) => {
   await adminRepository.save(user);
 };
 
-const deleteAccount = async (id: number) => {
+const deleteAccount = async (id: number, password: string) => {
   const adminRepository = getRepository(User);
   const user = await adminRepository.findOne({ where: { id, status: USER_STATUS_ENUM.ACTIVE } });
   if (!user) {
-    throw new Error('Not found User');
+    throw new Error('Không tìm thấy người dùng');
+  }
+
+  if (!user.checkIfPasswordMatch(password)) {
+    throw new Error('Mật khẩu chưa chính xác');
   }
 
   user.status = USER_STATUS_ENUM.DELETED;
