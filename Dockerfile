@@ -4,13 +4,13 @@ WORKDIR /app
 
 COPY ./package.json .
 
-RUN npm install && npm cache clean --force
+RUN yarn install
 
 COPY . .
 
 RUN chmod +x scripts/*.sh
 
-RUN npm run build
+RUN yarn build
 
 EXPOSE 4000
 
