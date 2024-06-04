@@ -10,7 +10,7 @@ export const register = async (req: Request, res: Response) => {
     try {
         const { email, password, phone, name } = req.body;
         const data = await UserService.register(email, password, phone, name);
-        return res.status(200).send({ message: 'Register Sucessfully', success: true, data });
+        return res.status(200).send({ message: 'Đăng ký thành công', success: true, data });
     } catch (err) {
         console.log(err);
         return res.status(400).send({ message: err.message, success: false, data: {} });
@@ -21,7 +21,7 @@ export const login = async (req: Request, res: Response) => {
     try {
         const { phone, password } = req.body;
         const data = await UserService.login(phone, password);
-        return res.status(200).send({ message: 'Login Sucessfully', success: true, data });
+        return res.status(200).send({ message: 'Đăng nhập thành công', success: true, data });
     } catch (err) {
         console.log(err);
         return res.status(400).send({ message: err.message, success: false, data: {} });
@@ -90,10 +90,10 @@ export const resetPassword = async (req: Request, res: Response) => {
         let user;
         switch (forgotMethod) {
             case FORGOT_PASSWORD_METHOD_ENUM.EMAIL:
-                user = await getRepository(User).findOne({ where: { email: emailOrPhone, status: Not(USER_STATUS_ENUM.DELETED) } });
+                user = await getRepository(User).findOne({ where: { email: emailOrPhone } });
                 break;
             case FORGOT_PASSWORD_METHOD_ENUM.PHONE:
-                user = await getRepository(User).findOne({ where: { phone: emailOrPhone, status: Not(USER_STATUS_ENUM.DELETED) } });
+                user = await getRepository(User).findOne({ where: { phone: emailOrPhone } });
                 break;
             default:
                 throw new Error(`Số điện thoại hoặc email bạn nhập không hợp lệ`)
@@ -101,6 +101,10 @@ export const resetPassword = async (req: Request, res: Response) => {
 
         if (!user) {
             throw new Error('Không tìm thấy người dùng');
+        }
+
+        if (user.status === USER_STATUS_ENUM.DELETED) {
+            throw new Error('Tài khoản đã bị khóa, vui lòng liên hệ với bộ phận hỗ trợ để khôi phục tài khoản')
         }
 
         const actionLogs = await AccountActionLogsService.getInstance().getAccActionLogs(
@@ -135,6 +139,23 @@ export const changePassword = async (req: Request, res: Response) => {
         await UserService.changePassword(userId, currentPassword, newPassword);
         return res.status(200).send({
             message: 'Change password successfully',
+            success: true,
+            data: {},
+        });
+    } catch (error) {
+        console.log(error.message);
+        return res
+            .status(400)
+            .send({ message: error.message, success: false, data: {} });
+    }
+};
+
+export const deleteAccount = async (req: Request, res: Response) => {
+    try {
+        const userId = req.jwtPayload.id;
+        await UserService.deleteAccount(userId);
+        return res.status(200).send({
+            message: 'Xóa tài khoản thành công',
             success: true,
             data: {},
         });

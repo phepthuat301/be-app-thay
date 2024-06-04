@@ -1,4 +1,3 @@
-import { BloodSugar } from 'orm/entities/models/bloodsugar';
 import { User } from 'orm/entities/models/user';
 import { USER_STATUS_ENUM, ROLE_ENUM } from 'share/enum';
 import { getRepository } from 'typeorm';
@@ -18,6 +17,9 @@ const register = async (email: string, password: string, phone: string, name: st
   const user = await adminRepository.findOne({ where: { phone } });
 
   if (user) {
+    if (user.status === USER_STATUS_ENUM.DELETED) {
+      throw new Error('Số điện thoại đã có người sử dụng, vui lòng liên hệ với bộ phận hỗ trợ để khôi phục tài khoản')
+    }
     throw new Error('Số điện thoại đã có người sử dụng');
   }
 
@@ -55,6 +57,10 @@ const login = async (phone: string, password: string) => {
 
   if (!user.checkIfPasswordMatch(password)) {
     throw new Error('Sai mật khẩu.');
+  }
+
+  if (user.status === USER_STATUS_ENUM.DELETED) {
+    throw new Error('Tài khoản đã bị khóa, vui lòng liên hệ với bộ phận hỗ trợ để khôi phục tài khoản')
   }
 
   const jwtPayload: JwtPayload = {
@@ -109,6 +115,9 @@ const changePassword = async (id: number, password: string, passwordNew: string)
     throw new Error('Incorrect password');
   }
 
+  if (user.status === USER_STATUS_ENUM.DELETED) {
+    throw new Error('Tài khoản đã bị khóa, vui lòng liên hệ với bộ phận hỗ trợ để khôi phục tài khoản')
+  }
   user.password = passwordNew;
   user.hashPassword();
   await adminRepository.save(user);
@@ -140,13 +149,25 @@ const resetPassword = async (id: number, passwordNew: string) => {
   await adminRepository.save(user);
 };
 
+const deleteAccount = async (id: number) => {
+  const adminRepository = getRepository(User);
+  const user = await adminRepository.findOne({ where: { id, status: USER_STATUS_ENUM.ACTIVE } });
+  if (!user) {
+    throw new Error('Not found User');
+  }
+
+  user.status = USER_STATUS_ENUM.DELETED;
+  await adminRepository.save(user);
+}
+
 const UserService = {
   register,
   login,
   changePassword,
   getUserInfo,
   loginAdmin,
-  resetPassword
+  resetPassword,
+  deleteAccount
 };
 
 export default UserService;
